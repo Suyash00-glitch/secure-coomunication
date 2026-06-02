@@ -1,1 +1,1 @@
-# secure-coomunication
+# secure-communication
