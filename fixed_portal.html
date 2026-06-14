@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Test Portal — External Application</title>
+<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" rel="stylesheet"/>
+<link href="style.css" rel="stylesheet"/>
+</head>
+<body>
+<!-- ═══════════════════════ LOGIN ═══════════════════════ -->
+<div id="login-screen">
+<div class="login-wrap">
+<div class="login-card">
+<div class="login-logo">
+<div class="login-logo-icon"><i class="ti ti-building-bank"></i></div>
+<h2>Test Portal</h2>
+<p>External Ticket &amp; Notification System</p>
+</div>
+<div class="form-group">
+<label class="form-label">Username</label>
+<input class="form-input" id="text-1" placeholder="Enter username" type="text" value="john.doe@dept.gov"/>
+</div>
+<div class="form-group">
+<label class="form-label">Password</label>
+<input class="form-input" id="password-2" placeholder="Enter password" type="password" value="password"/>
+</div>
+<button class="btn btn-primary-full" id="button-3" onclick="showApp()"><i class="ti ti-login"></i> Sign In</button>
+<p class="forgot">Forgot password?</p>
+</div>
+</div>
+</div>
+<!-- ═══════════════════════ MAIN APP ═══════════════════════ -->
+<div id="main-app" style="display:none">
+<div class="app">
+<!-- SIDEBAR -->
+<div class="sidebar">
+<div class="sidebar-logo">
+<div class="logo-box">
+<div class="logo-icon"><i class="ti ti-building-bank"></i></div>
+<div>
+<div class="logo-text">Test Portal</div>
+<div class="logo-sub">External Application</div>
+</div>
+</div>
+</div>
+<nav class="sidebar-nav">
+<div class="nav-item active" onclick="showPage('dashboard',this)">
+<i class="ti ti-layout-dashboard"></i> Dashboard
+        </div>
+<div class="nav-section">Tickets</div>
+<div class="nav-item" onclick="showPage('ticket-list',this)">
+<i class="ti ti-ticket"></i> Ticket List
+        </div>
+<div class="nav-item" onclick="showPage('create-ticket',this)">
+<i class="ti ti-plus"></i> Create Ticket
+        </div>
+<div class="nav-section">Notifications</div>
+<div class="nav-item" onclick="showPage('notif-list',this)">
+<i class="ti ti-bell"></i> Notification List
+        </div>
+<div class="nav-item" onclick="showPage('create-notif',this)">
+<i class="ti ti-send"></i> Create Notification
+        </div>
+<div class="nav-section">Administration</div>
+<div class="nav-item" onclick="showPage('user-master',this)">
+<i class="ti ti-users"></i> User Master
+        </div>
+<div class="nav-item" onclick="showPage('dept-master',this)">
+<i class="ti ti-building"></i> Department Master
+        </div>
+</nav>
+</div>
+<!-- MAIN AREA -->
+<div class="main">
+<!-- TOPBAR -->
+<div class="topbar">
+<div>
+<span class="breadcrumb" id="breadcrumb">Home / <span>Dashboard</span></span>
+</div>
+<div class="topbar-right">
+<div class="tb-icon" title="Notifications">
+<i class="ti ti-bell" style="font-size:18px"></i>
+<span class="badge-dot"></span>
+</div>
+<div class="tb-icon" title="Settings"><i class="ti ti-settings" style="font-size:18px"></i></div>
+<div class="avatar" title="John Doe">JD</div>
+<div class="tb-icon" onclick="showLogin()" style="cursor:pointer" title="Logout">
+<i class="ti ti-logout" style="font-size:18px"></i>
+</div>
+</div>
+</div>
+<!-- CONTENT -->
+<div class="content">
+<!-- ── DASHBOARD ── -->
+<div class="page active" id="page-dashboard">
+<div class="page-header">
+<div>
+<div class="page-title">Dashboard</div>
+<div class="page-sub">Welcome back, John Doe — External User</div>
+</div>
+<button class="btn btn-primary" id="button-4" onclick="showPage('create-ticket')"><i class="ti ti-plus"></i> New Ticket</button>
+</div>
+<div class="stat-grid">
+<div class="stat-card">
+<div class="stat-icon" style="background:#dbeafe;color:#1d4ed8"><i class="ti ti-ticket"></i></div>
+<div class="stat-label">Total Tickets</div>
+<div class="stat-val" style="color:#1d4ed8">48</div>
+<div class="stat-sub">All time</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon" style="background:#dcfce7;color:#166534"><i class="ti ti-folder-open"></i></div>
+<div class="stat-label">Open</div>
+<div class="stat-val" style="color:#166534">12</div>
+<div class="stat-sub">Awaiting response</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon" style="background:#fef3c7;color:#92400e"><i class="ti ti-clock"></i></div>
+<div class="stat-label">Under Process</div>
+<div class="stat-val" style="color:#92400e">9</div>
+<div class="stat-sub">Being handled</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon" style="background:#f3e8ff;color:#6b21a8"><i class="ti ti-circle-check"></i></div>
+<div class="stat-label">Closed</div>
+<div class="stat-val" style="color:#6b21a8">27</div>
+<div class="stat-sub">Resolved</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon" style="background:#ffe4e6;color:#991b1b"><i class="ti ti-speakerphone"></i></div>
+<div class="stat-label">Notifications</div>
+<div class="stat-val" style="color:#991b1b">15</div>
+<div class="stat-sub">Total sent</div>
+</div>
+</div>
+<div class="qa-grid">
+<div class="qa-card" onclick="showPage('create-ticket')"><i class="ti ti-plus-square"></i><span>Create Ticket</span></div>
+<div class="qa-card" onclick="showPage('ticket-list')"><i class="ti ti-list"></i><span>View My Tickets</span></div>
+<div class="qa-card" onclick="showPage('create-notif')"><i class="ti ti-speakerphone"></i><span>Send Notification</span></div>
+<div class="qa-card" onclick="showPage('notif-list')"><i class="ti ti-bell-ringing"></i><span>View Notifications</span></div>
+</div>
+<div style="display:grid;grid-template-columns:1.6fr 1fr;gap:20px">
+<div class="card">
+<div class="card-header">
+<span class="card-title">Recent Activity</span>
+<span style="font-size:12px;color:#6b7280">Last 7 days</span>
+</div>
+<div class="activity-item"><div class="act-icon"><i class="ti ti-ticket"></i></div><div><div class="act-text">Ticket <strong>TKT-0048</strong> was submitted to Finance Dept.</div><div class="act-time">2 hours ago</div></div></div>
+<div class="activity-item"><div class="act-icon"><i class="ti ti-message"></i></div><div><div class="act-text">Response received on <strong>TKT-0045</strong> — Under Process</div><div class="act-time">1 day ago</div></div></div>
+<div class="activity-item"><div class="act-icon"><i class="ti ti-circle-check"></i></div><div><div class="act-text">Ticket <strong>TKT-0041</strong> was closed by IT Department</div><div class="act-time">2 days ago</div></div></div>
+<div class="activity-item"><div class="act-icon"><i class="ti ti-speakerphone"></i></div><div><div class="act-text">Notification <strong>NTF-0015</strong> published to 3 departments</div><div class="act-time">3 days ago</div></div></div>
+<div class="activity-item"><div class="act-icon"><i class="ti ti-ticket"></i></div><div><div class="act-text">Ticket <strong>TKT-0039</strong> escalated to Senior Review</div><div class="act-time">5 days ago</div></div></div>
+</div>
+<div class="card">
+<div class="card-header"><span class="card-title">Ticket Status Summary</span></div>
+<div style="padding:6px 0">
+<div class="progress-row"><span class="progress-label">Open</span><div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:25%;background:#1a73e8"></div></div><span class="progress-count">12</span></div>
+<div class="progress-row"><span class="progress-label">Under Process</span><div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:19%;background:#f59e0b"></div></div><span class="progress-count">9</span></div>
+<div class="progress-row"><span class="progress-label">Closed</span><div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:56%;background:#22c55e"></div></div><span class="progress-count">27</span></div>
+<div style="border-top:1px solid #f3f4f6;margin-top:14px;padding-top:14px">
+<div style="font-size:12px;color:#6b7280;margin-bottom:8px">By Priority</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<span class="badge badge-high">High: 8</span>
+<span class="badge badge-medium">Medium: 22</span>
+<span class="badge badge-low">Low: 18</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- ── TICKET LIST ── -->
+<div class="page" id="page-ticket-list">
+<div class="page-header">
+<div><div class="page-title">My Tickets</div><div class="page-sub">Track and manage all submitted tickets</div></div>
+<button class="btn btn-primary" id="button-5" onclick="showPage('create-ticket')"><i class="ti ti-plus"></i> Create Ticket</button>
+</div>
+<div class="card">
+<div class="search-row">
+<div class="search-wrap"><i class="ti ti-search"></i><input class="search-input" id="text-6" placeholder="Search by ticket ID, subject…" type="text"/></div>
+<select class="filter-select" id="select-7"><option value="all_statuses">All Statuses</option><option value="open">Open</option><option value="under_process">Under Process</option><option value="closed">Closed</option></select>
+<select class="filter-select" id="select-8"><option value="all_departments">All Departments</option><option value="finance">Finance</option><option value="it_support">IT Support</option><option value="hr">HR</option><option value="legal">Legal</option></select>
+</div>
+<table>
+<thead><tr><th>Ticket ID</th><th>Subject</th><th>Department</th><th>Priority</th><th>Status</th><th>Created Date</th><th>Last Updated</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td style="color:#1a73e8;font-weight:600">TKT-0048</td><td>Salary Discrepancy in June Payroll</td><td>Finance</td><td><span class="badge badge-high">High</span></td><td><span class="badge badge-open">Open</span></td><td>01 Jun 2026</td><td>01 Jun 2026</td><td><button class="action-btn" id="button-9" onclick="showPage('ticket-detail')"><i class="ti ti-eye"></i> View</button></td></tr>
+<tr><td style="color:#1a73e8;font-weight:600">TKT-0045</td><td>VPN Access Request for Remote Work</td><td>IT Support</td><td><span class="badge badge-medium">Medium</span></td><td><span class="badge badge-process">Under Process</span></td><td>28 May 2026</td><td>31 May 2026</td><td><button class="action-btn" id="button-10" onclick="showPage('ticket-detail')"><i class="ti ti-eye"></i> View</button></td></tr>
+<tr><td style="color:#1a73e8;font-weight:600">TKT-0042</td><td>Leave Encashment Policy Clarification</td><td>HR</td><td><span class="badge badge-low">Low</span></td><td><span class="badge badge-open">Open</span></td><td>25 May 2026</td><td>27 May 2026</td><td><button class="action-btn" id="button-11" onclick="showPage('ticket-detail')"><i class="ti ti-eye"></i> View</button></td></tr>
+<tr><td style="color:#1a73e8;font-weight:600">TKT-0041</td><td>Contract Amendment for Vendor ID V-0192</td><td>Legal</td><td><span class="badge badge-high">High</span></td><td><span class="badge badge-closed">Closed</span></td><td>20 May 2026</td><td>29 May 2026</td><td><button class="action-btn" id="button-12" onclick="showPage('ticket-detail')"><i class="ti ti-eye"></i> View</button></td></tr>
+<tr><td style="color:#1a73e8;font-weight:600">TKT-0038</td><td>Budget Reallocation Request Q2</td><td>Finance</td><td><span class="badge badge-medium">Medium</span></td><td><span class="badge badge-closed">Closed</span></td><td>15 May 2026</td><td>22 May 2026</td><td><button class="action-btn" id="button-13" onclick="showPage('ticket-detail')"><i class="ti ti-eye"></i> View</button></td></tr>
+<tr><td style="color:#1a73e8;font-weight:600">TKT-0034</td><td>System Access Permission — New Employee</td><td>IT Support</td><td><span class="badge badge-medium">Medium</span></td><td><span class="badge badge-process">Under Process</span></td><td>10 May 2026</td><td>20 May 2026</td><td><button class="action-btn" id="button-14" onclick="showPage('ticket-detail')"><i class="ti ti-eye"></i> View</button></td></tr>
+</tbody>
+</table>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+<span style="font-size:12px;color:#6b7280">Showing 6 of 48 records</span>
+<div class="pagination">
+<button class="pg-btn" id="button-15">Previous</button>
+<button class="pg-btn active" id="button-16">1</button>
+<button class="pg-btn" id="button-17">2</button>
+<button class="pg-btn" id="button-18">3</button>
+<button class="pg-btn" id="button-19">Next</button>
+</div>
+</div>
+</div>
+</div>
+<!-- ── CREATE TICKET ── -->
+<div class="page" id="page-create-ticket">
+<div class="page-header">
+<div><div class="page-title">Create New Ticket</div><div class="page-sub">Submit a request to the relevant department</div></div>
+</div>
+<div class="card" style="max-width:780px">
+<div class="form-full">
+<label class="form-label">Ticket Subject <span style="color:#ef4444">*</span></label>
+<input class="form-input" id="text-20" placeholder="Brief description of your issue…" type="text"/>
+</div>
+<div class="form-row">
+<div>
+<label class="form-label">Department <span style="color:#ef4444">*</span></label>
+<select class="form-select" id="select-21"><option value="select_department">Select Department</option><option value="finance">Finance</option><option value="it_support">IT Support</option><option value="human_resources">Human Resources</option><option value="legal">Legal</option><option value="operations">Operations</option></select>
+</div>
+<div>
+<label class="form-label">Priority <span style="color:#ef4444">*</span></label>
+<select class="form-select" id="select-22"><option value="select_priority">Select Priority</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+</div>
+</div>
+<div class="form-full">
+<label class="form-label">Description <span style="color:#ef4444">*</span></label>
+<textarea class="form-textarea" id="textarea-23" placeholder="Describe the issue in detail — include relevant reference numbers, dates, and any supporting context…"></textarea>
+</div>
+<div class="form-full">
+<label class="form-label">Expected Response / Action Required</label>
+<textarea class="form-textarea" id="textarea-24" placeholder="What outcome are you expecting from this ticket?" style="height:70px"></textarea>
+</div>
+<div class="form-full">
+<label class="form-label">Attachments</label>
+<div class="upload-box">
+<i class="ti ti-upload"></i>
+                Drag &amp; drop files here, or <span class="upload-link">browse</span><br/>
+<span style="font-size:11px;color:#9ca3af">Supported: PDF, DOCX, XLSX, PNG, JPG — Max 10MB</span>
+</div>
+</div>
+<div class="form-actions">
+<button class="btn btn-secondary" id="button-25" onclick="showPage('ticket-list')">Cancel</button>
+<button class="btn btn-primary" id="button-26" onclick="showPage('ticket-detail')"><i class="ti ti-send"></i> Submit Ticket</button>
+</div>
+</div>
+</div>
+<!-- ── TICKET DETAIL ── -->
+<div class="page" id="page-ticket-detail">
+<div class="page-header">
+<div><div class="page-title">Ticket Detail — TKT-0045</div><div class="page-sub">Submitted on 28 May 2026</div></div>
+<div style="display:flex;gap:10px">
+<button class="btn btn-secondary" id="button-27"><i class="ti ti-message-plus"></i> Continue Ticket</button>
+<button class="btn btn-danger" id="button-28"><i class="ti ti-x"></i> Close Ticket</button>
+</div>
+</div>
+<div class="detail-grid">
+<div>
+<div class="card" style="margin-bottom:16px">
+<div class="card-header"><span class="card-title">Ticket Information</span><span class="badge badge-process">Under Process</span></div>
+<div class="info-row"><span class="info-key">Ticket ID</span><span>TKT-0045</span></div>
+<div class="info-row"><span class="info-key">Subject</span><span>VPN Access Request for Remote Work</span></div>
+<div class="info-row"><span class="info-key">Department</span><span>IT Support</span></div>
+<div class="info-row"><span class="info-key">Priority</span><span><span class="badge badge-medium">Medium</span></span></div>
+<div class="info-row"><span class="info-key">Created By</span><span>John Doe (john.doe@dept.gov)</span></div>
+<div class="info-row"><span class="info-key">Created Date</span><span>28 May 2026, 10:42 AM</span></div>
+<div class="info-row"><span class="info-key">Last Updated</span><span>31 May 2026, 03:15 PM</span></div>
+<div style="margin-top:14px;padding-top:14px;border-top:1px solid #f3f4f6">
+<div style="font-size:12px;color:#6b7280;margin-bottom:6px;font-weight:500">Description</div>
+<p style="font-size:13px;line-height:1.7;color:#374151">I require VPN access to connect to the internal network while working remotely from the Mysuru branch. The access is required for project GOVT-PROJ-2026-04 starting 05 June 2026. Please provide necessary credentials and setup guide.</p>
+</div>
+<div style="margin-top:14px">
+<div style="font-size:12px;color:#6b7280;margin-bottom:8px;font-weight:500">Attachments</div>
+<div class="file-chips">
+<div class="file-chip"><i class="ti ti-file-type-pdf" style="color:#ef4444"></i> authorization_letter.pdf</div>
+<div class="file-chip"><i class="ti ti-file-type-doc" style="color:#1a73e8"></i> project_brief.docx</div>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="card-header"><span class="card-title">Responses Received</span></div>
+<div class="response-box">
+<div class="response-header">
+<span class="response-author">IT Support Team</span>
+<span class="response-time">31 May 2026, 03:15 PM</span>
+</div>
+<p class="response-body">Your VPN access request has been received and is under review. The IT security team will verify your authorization details. You will receive credentials within 3 working days. Reference: IT-REQ-2026-1102.</p>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="card-header"><span class="card-title">Timeline / History</span></div>
+<div class="timeline">
+<div class="tl-item">
+<div class="tl-dot"></div>
+<div class="tl-date">31 May 2026, 03:15 PM</div>
+<div class="tl-text">Status changed to <span class="badge badge-process" style="font-size:10px">Under Process</span></div>
+</div>
+<div class="tl-item">
+<div class="tl-dot" style="background:#22c55e;box-shadow:0 0 0 2px #22c55e"></div>
+<div class="tl-date">30 May 2026, 09:00 AM</div>
+<div class="tl-text">Ticket assigned to IT Support — Priya Sharma</div>
+</div>
+<div class="tl-item">
+<div class="tl-dot" style="background:#f59e0b;box-shadow:0 0 0 2px #f59e0b"></div>
+<div class="tl-date">28 May 2026, 10:42 AM</div>
+<div class="tl-text">Ticket created by John Doe</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- ── CREATE NOTIFICATION ── -->
+<div class="page" id="page-create-notif">
+<div class="page-header">
+<div><div class="page-title">Create Notification</div><div class="page-sub">Publish a notification to one or more departments</div></div>
+</div>
+<div class="card" style="max-width:780px">
+<div class="form-full">
+<label class="form-label">Notification Title <span style="color:#ef4444">*</span></label>
+<input class="form-input" id="text-29" placeholder="e.g. Annual Budget Review — Action Required" type="text"/>
+</div>
+<div class="form-full">
+<label class="form-label">Notification Description <span style="color:#ef4444">*</span></label>
+<textarea class="form-textarea" id="textarea-30" placeholder="Provide detailed information about this notification…" style="height:110px"></textarea>
+</div>
+<div class="form-full">
+<label class="form-label">Select Departments <span style="color:#ef4444">*</span></label>
+<div style="border:1px solid #d1d5db;border-radius:8px;padding:12px">
+<div class="dept-checkboxes">
+<label class="dept-check"><input checked="" id="checkbox-31" type="checkbox"/> Finance</label>
+<label class="dept-check"><input id="checkbox-32" type="checkbox"/> IT Support</label>
+<label class="dept-check"><input checked="" id="checkbox-33" type="checkbox"/> Human Resources</label>
+<label class="dept-check"><input id="checkbox-34" type="checkbox"/> Legal</label>
+<label class="dept-check"><input checked="" id="checkbox-35" type="checkbox"/> Operations</label>
+<label class="dept-check"><input id="checkbox-36" type="checkbox"/> Administration</label>
+<label class="dept-check"><input id="checkbox-37" type="checkbox"/> Procurement</label>
+</div>
+</div>
+</div>
+<div class="form-full">
+<label class="form-label">Attachments</label>
+<div class="upload-box">
+<i class="ti ti-paperclip"></i>
+                Attach files if any — PDF, DOCX, XLSX supported<br/>
+<span style="font-size:11px;color:#9ca3af">Max 25MB per file</span>
+</div>
+</div>
+<div class="form-actions">
+<button class="btn btn-secondary" id="button-38" onclick="showPage('notif-list')">Cancel</button>
+<button class="btn btn-primary" id="button-39" onclick="showPage('notif-list')"><i class="ti ti-send"></i> Publish Notification</button>
+</div>
+</div>
+</div>
+<!-- ── NOTIFICATION LIST ── -->
+<div class="page" id="page-notif-list">
+<div class="page-header">
+<div><div class="page-title">Notification List</div><div class="page-sub">All outgoing notifications published by your department</div></div>
+<button class="btn btn-primary" id="button-40" onclick="showPage('create-notif')"><i class="ti ti-plus"></i> New Notification</button>
+</div>
+<div class="card">
+<div class="search-row">
+<div class="search-wrap"><i class="ti ti-search"></i><input class="search-input" id="text-41" placeholder="Search notifications…" type="text"/></div>
+<select class="filter-select" id="select-42"><option value="all_statuses">All Statuses</option><option value="published">Published</option><option value="draft">Draft</option></select>
+</div>
+<table>
+<thead><tr><th>Notif. ID</th><th>Title</th><th>Departments</th><th>Created By</th><th>Created Date</th><th>Status</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td style="color:#1a73e8;font-weight:600">NTF-0015</td><td>Annual Budget Review Circular</td><td>Finance, Operations, HR</td><td>John Doe</td><td>30 May 2026</td><td><span class="badge badge-active">Published</span></td><td><button class="action-btn" id="button-43" onclick="showPage('notif-detail')"><i class="ti ti-eye"></i> View</button></td></tr>
+<tr><td style="color:#1a73e8;font-weight:600">NTF-0014</td><td>Holiday Schedule — June 2026</td><td>All Departments</td><td>John Doe</td><td>25 May 2026</td><td><span class="badge badge-active">Published</span></td><td><button class="action-btn" id="button-44" onclick="showPage('notif-detail')"><i class="ti ti-eye"></i> View</button></td></tr>
+<tr><td style="color:#1a73e8;font-weight:600">NTF-0013</td><td>Mandatory Security Training Notice</td><td>IT Support, Legal</td><td>Admin User</td><td>18 May 2026</td><td><span class="badge badge-active">Published</span></td><td><button class="action-btn" id="button-45" onclick="showPage('notif-detail')"><i class="ti ti-eye"></i> View</button></td></tr>
+<tr><td style="color:#1a73e8;font-weight:600">NTF-0012</td><td>New Vendor Onboarding Policy</td><td>Finance, Procurement</td><td>John Doe</td><td>10 May 2026</td><td><span class="badge badge-active">Published</span></td><td><button class="action-btn" id="button-46" onclick="showPage('notif-detail')"><i class="ti ti-eye"></i> View</button></td></tr>
+<tr><td style="color:#1a73e8;font-weight:600">NTF-0011</td><td>Employee Feedback Survey 2026</td><td>HR, Administration</td><td>Admin User</td><td>05 May 2026</td><td><span class="badge badge-inactive">Draft</span></td><td><button class="action-btn" id="button-47" onclick="showPage('notif-detail')"><i class="ti ti-eye"></i> View</button></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- ── NOTIFICATION DETAIL ── -->
+<div class="page" id="page-notif-detail">
+<div class="page-header">
+<div><div class="page-title">Notification Detail — NTF-0015</div><div class="page-sub">Published on 30 May 2026</div></div>
+<span class="badge badge-active" style="font-size:13px;padding:6px 16px">Published</span>
+</div>
+<div class="detail-grid">
+<div class="card">
+<div class="card-header"><span class="card-title">Notification Information</span></div>
+<div class="info-row"><span class="info-key">Notification ID</span><span>NTF-0015</span></div>
+<div class="info-row"><span class="info-key">Title</span><span>Annual Budget Review Circular</span></div>
+<div class="info-row"><span class="info-key">Created By</span><span>John Doe (john.doe@dept.gov)</span></div>
+<div class="info-row"><span class="info-key">Created Date</span><span>30 May 2026, 11:00 AM</span></div>
+<div class="info-row"><span class="info-key">Status</span><span><span class="badge badge-active">Published</span></span></div>
+<div class="info-row"><span class="info-key">Departments</span><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge badge-open">Finance</span><span class="badge badge-open">Operations</span><span class="badge badge-open">Human Resources</span></div></div>
+<div style="margin-top:14px;padding-top:14px;border-top:1px solid #f3f4f6">
+<div style="font-size:12px;color:#6b7280;margin-bottom:6px;font-weight:500">Description</div>
+<p style="font-size:13px;line-height:1.7;color:#374151">All department heads are requested to review the proposed budget allocation for FY 2026-27 and submit their departmental requirements by 15 June 2026. The review committee will meet on 20 June 2026. Please ensure accuracy and proper justification for all line items exceeding ₹5 lakhs.</p>
+</div>
+<div style="margin-top:14px">
+<div style="font-size:12px;color:#6b7280;margin-bottom:8px;font-weight:500">Attached Files</div>
+<div class="file-chips">
+<div class="file-chip"><i class="ti ti-file-type-pdf" style="color:#ef4444"></i> budget_circular_2026.pdf</div>
+<div class="file-chip"><i class="ti ti-file-type-xls" style="color:#166534"></i> allocation_template.xlsx</div>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="card-header"><span class="card-title">Departments Included</span></div>
+<div class="dept-icon-row">
+<div class="dept-icon-box" style="background:#dbeafe;color:#1d4ed8"><i class="ti ti-building-bank"></i></div>
+<div><div style="font-size:13px;font-weight:500">Finance</div><div style="font-size:11px;color:#6b7280">Secure Area</div></div>
+</div>
+<div class="dept-icon-row">
+<div class="dept-icon-box" style="background:#dcfce7;color:#166534"><i class="ti ti-settings"></i></div>
+<div><div style="font-size:13px;font-weight:500">Operations</div><div style="font-size:11px;color:#6b7280">General Area</div></div>
+</div>
+<div class="dept-icon-row">
+<div class="dept-icon-box" style="background:#f3e8ff;color:#6b21a8"><i class="ti ti-users"></i></div>
+<div><div style="font-size:13px;font-weight:500">Human Resources</div><div style="font-size:11px;color:#6b7280">General Area</div></div>
+</div>
+</div>
+</div>
+</div>
+<!-- ── USER MASTER ── -->
+<div class="page" id="page-user-master">
+<div class="page-header">
+<div><div class="page-title">User Master</div><div class="page-sub">Admin · Manage system users and access roles</div></div>
+<button class="btn btn-primary" id="button-48"><i class="ti ti-plus"></i> Add User</button>
+</div>
+<div class="card">
+<div class="search-row">
+<div class="search-wrap"><i class="ti ti-search"></i><input class="search-input" id="text-49" placeholder="Search by name, username, email…" type="text"/></div>
+<select class="filter-select" id="select-50"><option value="all_roles">All Roles</option><option value="admin">Admin</option><option value="external_user">External User</option><option value="internal_user">Internal User</option></select>
+<select class="filter-select" id="select-51"><option value="all_departments">All Departments</option><option value="finance">Finance</option><option value="it_support">IT Support</option><option value="hr">HR</option></select>
+<select class="filter-select" id="select-52"><option value="all_statuses">All Statuses</option><option value="active">Active</option><option value="inactive">Inactive</option></select>
+</div>
+<table>
+<thead><tr><th>Username</th><th>Full Name</th><th>Email</th><th>Login Type</th><th>Role</th><th>Department</th><th>Status</th><th>Actions</th></tr></thead>
+<tbody>
+<tr>
+<td>john.doe</td><td>John Doe</td><td>john.doe@dept.gov</td>
+<td><span class="badge badge-ldap">LDAP</span></td>
+<td><span class="badge badge-admin">Admin</span></td>
+<td>Finance</td><td><span class="badge badge-active">Active</span></td>
+<td><div style="display:flex;gap:6px"><button class="action-btn" id="button-53"><i class="ti ti-edit"></i></button><button class="action-btn action-btn-danger" id="button-54"><i class="ti ti-trash"></i></button></div></td>
+</tr>
+<tr>
+<td>priya.sharma</td><td>Priya Sharma</td><td>p.sharma@dept.gov</td>
+<td><span class="badge badge-local">Local</span></td>
+<td><span class="badge badge-open">Internal User</span></td>
+<td>IT Support</td><td><span class="badge badge-active">Active</span></td>
+<td><div style="display:flex;gap:6px"><button class="action-btn" id="button-55"><i class="ti ti-edit"></i></button><button class="action-btn action-btn-danger" id="button-56"><i class="ti ti-trash"></i></button></div></td>
+</tr>
+<tr>
+<td>rajan.m</td><td>Rajan Mehendale</td><td>rajan.m@dept.gov</td>
+<td><span class="badge badge-ldap">LDAP</span></td>
+<td><span class="badge badge-process">External User</span></td>
+<td>Operations</td><td><span class="badge badge-active">Active</span></td>
+<td><div style="display:flex;gap:6px"><button class="action-btn" id="button-57"><i class="ti ti-edit"></i></button><button class="action-btn action-btn-danger" id="button-58"><i class="ti ti-trash"></i></button></div></td>
+</tr>
+<tr>
+<td>anita.k</td><td>Anita Kulkarni</td><td>anita.k@dept.gov</td>
+<td><span class="badge badge-local">Local</span></td>
+<td><span class="badge badge-open">Internal User</span></td>
+<td>Legal</td><td><span class="badge badge-inactive">Inactive</span></td>
+<td><div style="display:flex;gap:6px"><button class="action-btn" id="button-59"><i class="ti ti-edit"></i></button><button class="action-btn action-btn-danger" id="button-60"><i class="ti ti-trash"></i></button></div></td>
+</tr>
+<tr>
+<td>suresh.n</td><td>Suresh Nair</td><td>suresh.n@dept.gov</td>
+<td><span class="badge badge-ldap">LDAP</span></td>
+<td><span class="badge badge-process">External User</span></td>
+<td>HR</td><td><span class="badge badge-active">Active</span></td>
+<td><div style="display:flex;gap:6px"><button class="action-btn" id="button-61"><i class="ti ti-edit"></i></button><button class="action-btn action-btn-danger" id="button-62"><i class="ti ti-trash"></i></button></div></td>
+</tr>
+</tbody>
+</table>
+<div style="margin-top:14px;font-size:12px;color:#6b7280">Showing 5 of 32 users</div>
+</div>
+</div>
+<!-- ── DEPARTMENT MASTER ── -->
+<div class="page" id="page-dept-master">
+<div class="page-header">
+<div><div class="page-title">Department Master</div><div class="page-sub">Admin · Configure department settings and secure area flags</div></div>
+<button class="btn btn-primary" id="button-63"><i class="ti ti-plus"></i> Add Department</button>
+</div>
+<div class="card">
+<div class="search-row">
+<div class="search-wrap"><i class="ti ti-search"></i><input class="search-input" id="text-64" placeholder="Search departments…" type="text"/></div>
+<select class="filter-select" id="select-65"><option value="all_statuses">All Statuses</option><option value="active">Active</option><option value="inactive">Inactive</option></select>
+<select class="filter-select" id="select-66"><option value="secure_area_all">Secure Area: All</option><option value="yes">Yes</option><option value="no">No</option></select>
+</div>
+<table>
+<thead><tr><th>#</th><th>Department Name</th><th>Department Code</th><th>Secure Area</th><th>Status</th><th>Created Date</th><th>Actions</th></tr></thead>
+<tbody>
+<tr><td>01</td><td>Finance</td><td>FIN</td><td><span class="badge badge-high">Yes</span></td><td><span class="badge badge-active">Active</span></td><td>01 Jan 2024</td><td><button class="action-btn" id="button-67"><i class="ti ti-edit"></i> Edit</button></td></tr>
+<tr><td>02</td><td>IT Support</td><td>ITS</td><td><span class="badge badge-high">Yes</span></td><td><span class="badge badge-active">Active</span></td><td>01 Jan 2024</td><td><button class="action-btn" id="button-68"><i class="ti ti-edit"></i> Edit</button></td></tr>
+<tr><td>03</td><td>Human Resources</td><td>HR</td><td><span class="badge badge-low">No</span></td><td><span class="badge badge-active">Active</span></td><td>01 Jan 2024</td><td><button class="action-btn" id="button-69"><i class="ti ti-edit"></i> Edit</button></td></tr>
+<tr><td>04</td><td>Legal</td><td>LGL</td><td><span class="badge badge-high">Yes</span></td><td><span class="badge badge-active">Active</span></td><td>15 Mar 2024</td><td><button class="action-btn" id="button-70"><i class="ti ti-edit"></i> Edit</button></td></tr>
+<tr><td>05</td><td>Operations</td><td>OPS</td><td><span class="badge badge-low">No</span></td><td><span class="badge badge-active">Active</span></td><td>15 Mar 2024</td><td><button class="action-btn" id="button-71"><i class="ti ti-edit"></i> Edit</button></td></tr>
+<tr><td>06</td><td>Procurement</td><td>PROC</td><td><span class="badge badge-low">No</span></td><td><span class="badge badge-active">Active</span></td><td>10 Jun 2024</td><td><button class="action-btn" id="button-72"><i class="ti ti-edit"></i> Edit</button></td></tr>
+<tr><td>07</td><td>Administration</td><td>ADMIN</td><td><span class="badge badge-low">No</span></td><td><span class="badge badge-inactive">Inactive</span></td><td>10 Jun 2024</td><td><button class="action-btn" id="button-73"><i class="ti ti-edit"></i> Edit</button></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+</div><!-- /main-app -->
+<script>
+  function showApp() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('main-app').style.display = 'block';
+  }
+  function showLogin() {
+    document.getElementById('main-app').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'block';
+  }
+  const pageNames = {
+    'dashboard': 'Dashboard',
+    'ticket-list': 'Ticket List',
+    'create-ticket': 'Create Ticket',
+    'ticket-detail': 'Ticket Detail',
+    'notif-list': 'Notification List',
+    'create-notif': 'Create Notification',
+    'notif-detail': 'Notification Detail',
+    'user-master': 'User Master',
+    'dept-master': 'Department Master'
+  };
+  const pageSections = {
+    'dashboard': 'Home',
+    'ticket-list': 'Tickets',
+    'create-ticket': 'Tickets',
+    'ticket-detail': 'Tickets',
+    'notif-list': 'Notifications',
+    'create-notif': 'Notifications',
+    'notif-detail': 'Notifications',
+    'user-master': 'Administration',
+    'dept-master': 'Administration'
+  };
+  function showPage(id, navEl) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const pg = document.getElementById('page-' + id);
+    if (pg) pg.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (navEl) navEl.classList.add('active');
+    const bc = document.getElementById('breadcrumb');
+    if (bc) bc.innerHTML = pageSections[id] + ' / <span>' + pageNames[id] + '</span>';
+    document.querySelector('.content').scrollTop = 0;
+  }
+</script>
+</body>
+</html>
