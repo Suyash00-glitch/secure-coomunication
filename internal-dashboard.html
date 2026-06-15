@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Internal Department Portal — Staff Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
+<style>
+/* ═══════════════ RESET & BASE ═══════════════ */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:#1a1a1a;background:#f4f6f9}
+
+/* ═══════════════ LAYOUT ═══════════════ */
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* ═══════════════ SIDEBAR ═══════════════ */
+.sidebar{width:220px;background:#0f3460;color:#fff;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;transition:width .2s}
+.sidebar-logo{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.1)}
+.logo-box{display:flex;align-items:center;gap:10px}
+.logo-icon{width:34px;height:34px;background:#1a73e8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0}
+.logo-text{font-size:13px;font-weight:600;color:#fff;line-height:1.3}
+.logo-sub{font-size:10px;color:rgba(255,255,255,0.5);margin-top:1px}
+.sidebar-nav{flex:1;padding:10px 0}
+.nav-section{padding:8px 16px 4px;font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:.8px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.75);border-left:3px solid transparent;transition:all .15s;user-select:none}
+.nav-item:hover{background:rgba(255,255,255,0.08);color:#fff}
+.nav-item.active{background:rgba(26,115,232,0.25);color:#fff;border-left-color:#1a73e8}
+.nav-item i{font-size:16px;width:18px;flex-shrink:0}
+.nav-badge{margin-left:auto;background:#ef4444;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px}
+.sidebar-footer{padding:14px 16px;border-top:1px solid rgba(255,255,255,0.1)}
+.staff-meta{display:flex;align-items:center;gap:9px}
+.staff-avatar-sm{width:30px;height:30px;border-radius:50%;background:#1a73e8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.staff-name-sm{font-size:12px;font-weight:600;color:#fff}
+.staff-role-sm{font-size:10px;color:rgba(255,255,255,0.5)}
+
+/* ═══════════════ MAIN ═══════════════ */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* ═══════════════ TOPBAR ═══════════════ */
+.topbar{height:56px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0}
+.breadcrumb{font-size:13px;color:#6b7280}
+.breadcrumb span{color:#1a1a1a;font-weight:500}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.tb-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid #e5e7eb;cursor:pointer;color:#6b7280;position:relative;background:#fff;transition:.15s}
+.tb-icon:hover{background:#f3f4f6;color:#1a1a1a}
+.badge-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;background:#ef4444;border-radius:50%;border:1.5px solid #fff}
+.topbar-avatar{width:34px;height:34px;border-radius:50%;background:#0f3460;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;cursor:pointer}
+.topbar-username{font-size:13px;font-weight:500;color:#374151}
+.btn-logout{padding:6px 14px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid #d1d5db;background:#fff;color:#374151;display:inline-flex;align-items:center;gap:5px;transition:.15s}
+.btn-logout:hover{background:#fef2f2;border-color:#fca5a5;color:#ef4444}
+
+/* ═══════════════ CONTENT AREA ═══════════════ */
+.content{flex:1;overflow-y:auto;padding:24px}
+.page{display:none}
+.page.active{display:block}
+
+/* ═══════════════ PAGE HEADER ═══════════════ */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.page-title{font-size:20px;font-weight:600;color:#0f3460}
+.page-sub{font-size:13px;color:#6b7280;margin-top:3px}
+
+/* ═══════════════ STAT CARDS ═══════════════ */
+.stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:#fff;border-radius:10px;border:1px solid #e5e7eb;padding:16px;transition:.15s}
+.stat-card:hover{border-color:#1a73e8;box-shadow:0 4px 16px rgba(26,115,232,0.08)}
+.stat-label{font-size:11px;color:#6b7280;margin-bottom:8px;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.stat-val{font-size:26px;font-weight:700}
+.stat-sub{font-size:11px;color:#9ca3af;margin-top:4px}
+.stat-icon{float:right;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+
+/* ═══════════════ BUTTONS ═══════════════ */
+.btn{padding:9px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:#1a73e8;color:#fff}
+.btn-primary:hover{background:#1557b0}
+.btn-sm{padding:5px 11px;border-radius:6px;font-size:12px;border:1px solid #d1d5db;background:#fff;cursor:pointer;color:#374151;display:inline-flex;align-items:center;gap:4px;transition:.15s;white-space:nowrap}
+.btn-sm:hover{background:#f3f4f6}
+.btn-sm-blue{border-color:#bfdbfe;color:#1d4ed8;background:#eff6ff}
+.btn-sm-blue:hover{background:#dbeafe}
+.btn-sm-green{border-color:#bbf7d0;color:#166534;background:#f0fdf4}
+.btn-sm-green:hover{background:#dcfce7}
+.btn-sm-orange{border-color:#fed7aa;color:#92400e;background:#fffbeb}
+.btn-sm-orange:hover{background:#fef3c7}
+.btn-sm-red{border-color:#fca5a5;color:#ef4444;background:#fff}
+.btn-sm-red:hover{background:#fef2f2}
+.btn-sm-purple{border-color:#e9d5ff;color:#6b21a8;background:#faf5ff}
+.btn-sm-purple:hover{background:#f3e8ff}
+
+/* ═══════════════ CARDS ═══════════════ */
+.card{background:#fff;border-radius:10px;border:1px solid #e5e7eb;padding:20px;margin-bottom:20px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.card-title{font-size:15px;font-weight:600;color:#0f3460;display:flex;align-items:center;gap:8px}
+.card-title-dot{width:8px;height:8px;border-radius:50%}
+
+/* ═══════════════ TABLES ═══════════════ */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:700px}
+th{text-align:left;padding:10px 12px;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #e5e7eb;background:#f9fafb;white-space:nowrap}
+td{padding:11px 12px;border-bottom:1px solid #f3f4f6;color:#1a1a1a;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f9fafb}
+.td-id{color:#1a73e8;font-weight:600;font-size:12px;white-space:nowrap}
+
+/* ═══════════════ BADGES ═══════════════ */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-open{background:#dbeafe;color:#1d4ed8}
+.badge-process{background:#fef3c7;color:#92400e}
+.badge-closed{background:#dcfce7;color:#166534}
+.badge-high{background:#fee2e2;color:#991b1b}
+.badge-medium{background:#fef3c7;color:#92400e}
+.badge-low{background:#dbeafe;color:#1d4ed8}
+.badge-unread{background:#ede9fe;color:#5b21b6}
+.badge-ack{background:#dcfce7;color:#166534}
+.badge-pending{background:#fef3c7;color:#92400e}
+.badge-fwd{background:#f0f9ff;color:#0369a1}
+.badge-reassign{background:#fff7ed;color:#c2410c}
+
+/* ═══════════════ SEARCH & FILTER ═══════════════ */
+.search-row{display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;min-width:180px}
+.search-wrap i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#9ca3af;font-size:16px}
+.search-input{width:100%;padding:8px 12px 8px 36px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;outline:none;transition:.15s}
+.search-input:focus{border-color:#1a73e8;box-shadow:0 0 0 3px rgba(26,115,232,0.08)}
+.filter-select{padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;background:#fff;color:#374151;outline:none;cursor:pointer;transition:.15s}
+.filter-select:focus{border-color:#1a73e8}
+
+/* ═══════════════ EXPECTED RESPONSE DROPDOWN ═══════════════ */
+.resp-select{padding:5px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;background:#fff;color:#374151;outline:none;cursor:pointer;min-width:160px;transition:.15s}
+.resp-select:focus{border-color:#1a73e8}
+
+/* ═══════════════ ACTION BUTTONS CLUSTER ═══════════════ */
+.action-cluster{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+
+/* ═══════════════ ATTACHMENT ICON ═══════════════ */
+.attach-icon{color:#1a73e8;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;gap:3px;font-size:12px}
+.no-attach{color:#d1d5db;font-size:14px}
+
+/* ═══════════════ QUICK ACTIONS ═══════════════ */
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.qa-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:18px 16px;text-align:center;cursor:pointer;transition:all .15s}
+.qa-card:hover{border-color:#1a73e8;background:#eff6ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(26,115,232,0.1)}
+.qa-card i{font-size:26px;color:#1a73e8;display:block;margin-bottom:8px}
+.qa-card span{font-size:12px;font-weight:500;color:#374151}
+
+/* ═══════════════ ACTIVITY ═══════════════ */
+.activity-item{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid #f3f4f6}
+.activity-item:last-child{border-bottom:none}
+.act-icon{width:32px;height:32px;border-radius:50%;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;color:#1a73e8}
+.act-text{font-size:13px;color:#374151;flex:1;line-height:1.5}
+.act-time{font-size:11px;color:#9ca3af;margin-top:3px}
+
+/* ═══════════════ PROGRESS BAR ═══════════════ */
+.progress-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.progress-label{font-size:13px;color:#374151;min-width:110px}
+.progress-bar-wrap{flex:1;height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden;margin:0 10px}
+.progress-bar-fill{height:100%;border-radius:4px;transition:width .4s ease}
+.progress-count{font-size:12px;font-weight:600;color:#374151;min-width:20px;text-align:right}
+
+/* ═══════════════ PAGINATION ═══════════════ */
+.pag-row{display:flex;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap;gap:8px}
+.pagination{display:flex;gap:5px}
+.pg-btn{padding:5px 12px;border-radius:6px;font-size:12px;border:1px solid #d1d5db;background:#fff;cursor:pointer;color:#374151;transition:.15s}
+.pg-btn:hover{background:#f3f4f6}
+.pg-btn.active{background:#1a73e8;color:#fff;border-color:#1a73e8}
+
+/* ═══════════════ TIMELINE (modal) ═══════════════ */
+.tl{padding-left:20px;border-left:2px solid #e5e7eb}
+.tl-item{position:relative;padding-bottom:18px;padding-left:16px}
+.tl-item:last-child{padding-bottom:0}
+.tl-dot{position:absolute;left:-21px;top:3px;width:10px;height:10px;border-radius:50%;background:#1a73e8;border:2px solid #fff;box-shadow:0 0 0 2px #1a73e8}
+.tl-dot-green{background:#22c55e;box-shadow:0 0 0 2px #22c55e}
+.tl-dot-orange{background:#f59e0b;box-shadow:0 0 0 2px #f59e0b}
+.tl-dot-red{background:#ef4444;box-shadow:0 0 0 2px #ef4444}
+.tl-date{font-size:11px;color:#9ca3af;margin-bottom:3px}
+.tl-text{font-size:13px;color:#374151;line-height:1.5}
+
+/* ═══════════════ MODAL ═══════════════ */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:12px;width:100%;max-width:640px;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:16px;font-weight:600;color:#0f3460}
+.modal-close{width:30px;height:30px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#6b7280;transition:.15s}
+.modal-close:hover{background:#f3f4f6;color:#1a1a1a}
+.modal-body{padding:20px 24px}
+.modal-footer{padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:10px}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.meta-row{padding:9px 0;border-bottom:1px solid #f3f4f6;display:flex;flex-direction:column;gap:2px}
+.meta-row:last-child{border-bottom:none}
+.meta-key{font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;font-weight:500}
+.meta-val{font-size:13px;color:#1a1a1a;font-weight:500}
+
+/* ═══════════════ SECTION DIVIDER ═══════════════ */
+.section-divider{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.section-divider-line{flex:1;height:1px;background:#e5e7eb}
+.section-divider-label{font-size:12px;font-weight:600;color:#6b7280;white-space:nowrap;text-transform:uppercase;letter-spacing:.5px}
+
+/* ═══════════════ INFO CARD DETAIL ═══════════════ */
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f3f4f6;font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-key{color:#6b7280}
+
+/* ═══════════════ PROFILE PAGE ═══════════════ */
+.profile-card{display:flex;align-items:center;gap:20px;padding:24px;background:#fff;border-radius:10px;border:1px solid #e5e7eb;margin-bottom:20px}
+.profile-avatar{width:70px;height:70px;border-radius:50%;background:#0f3460;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;flex-shrink:0}
+.profile-name{font-size:18px;font-weight:600;color:#0f3460}
+.profile-meta{font-size:13px;color:#6b7280;margin-top:3px}
+
+/* ═══════════════ TOAST ═══════════════ */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:2000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:#1a1a1a;color:#fff;border-radius:8px;padding:12px 18px;font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,0.2);display:flex;align-items:center;gap:10px;animation:toastIn .25s ease;pointer-events:auto;min-width:240px}
+.toast i{font-size:16px}
+.toast-green{background:#166534;border-left:4px solid #22c55e}
+.toast-blue{background:#1d4ed8;border-left:4px solid #60a5fa}
+.toast-orange{background:#92400e;border-left:4px solid #f59e0b}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+/* ═══════════════ LOGIN ═══════════════ */
+.login-wrap{min-height:100vh;background:linear-gradient(135deg,#0f3460 0%,#1a73e8 100%);display:flex;align-items:center;justify-content:center;padding:24px}
+.login-card{background:#fff;border-radius:14px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.25)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo-icon{width:56px;height:56px;background:#0f3460;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-size:26px;color:#fff;margin-bottom:12px}
+.login-logo h2{font-size:20px;font-weight:700;margin-bottom:4px;color:#0f3460}
+.login-logo p{font-size:12px;color:#6b7280}
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:12px;font-weight:500;color:#6b7280;margin-bottom:6px}
+.form-input{width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;outline:none;transition:.15s}
+.form-input:focus{border-color:#1a73e8;box-shadow:0 0 0 3px rgba(26,115,232,0.1)}
+.btn-primary-full{background:#0f3460;color:#fff;width:100%;padding:11px;justify-content:center;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:.15s}
+.btn-primary-full:hover{background:#1a73e8}
+.login-badge{display:inline-block;background:#dcfce7;color:#166534;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;margin-bottom:18px}
+
+/* ═══════════════ RESPONSIVE ═══════════════ */
+@media(max-width:900px){
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  .qa-grid{grid-template-columns:repeat(2,1fr)}
+  .dash-bottom{grid-template-columns:1fr !important}
+}
+@media(max-width:700px){
+  .sidebar{width:0;overflow:hidden;position:fixed;z-index:100;height:100vh}
+  .sidebar.mobile-open{width:220px}
+  .main{width:100%}
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .page-header{flex-direction:column;align-items:flex-start}
+  .search-row{flex-direction:column;align-items:stretch}
+  .filter-select{width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ TOAST CONTAINER ═══════════════════════ -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- ═══════════════════════ LOGIN ═══════════════════════ -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="login-logo-icon"><i class="ti ti-shield-lock"></i></div>
+        <div class="login-badge">Internal Staff Portal</div>
+        <h2>Department Portal</h2>
+        <p>Secure Ticketing &amp; Notification Management</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Staff Username</label>
+        <input class="form-input" id="login-user" type="text" value="priya.sharma" placeholder="Enter staff username" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="login-pass" type="password" value="••••••••" placeholder="Enter password" />
+      </div>
+      <button class="btn-primary-full" onclick="showApp()"><i class="ti ti-login"></i> Sign In to Portal</button>
+      <p style="text-align:center;margin-top:14px;font-size:12px;color:#1a73e8;cursor:pointer">Forgot password? Contact IT Support</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ MAIN APP ═══════════════════════ -->
+<div id="main-app" style="display:none">
+  <div class="app">
+
+    <!-- ─── SIDEBAR ─── -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-box">
+          <div class="logo-icon"><i class="ti ti-shield-lock"></i></div>
+          <div>
+            <div class="logo-text">Department Portal</div>
+            <div class="logo-sub">Internal Staff</div>
+          </div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard',this)">
+          <i class="ti ti-layout-dashboard"></i> Dashboard
+        </div>
+        <div class="nav-section">Inbox</div>
+        <div class="nav-item" id="nav-notifications" onclick="showPage('notifications',this)">
+          <i class="ti ti-bell-ringing"></i> Notifications
+          <span class="nav-badge">3</span>
+        </div>
+        <div class="nav-item" id="nav-tickets" onclick="showPage('tickets',this)">
+          <i class="ti ti-ticket"></i> Tickets
+          <span class="nav-badge">5</span>
+        </div>
+        <div class="nav-section">Records</div>
+        <div class="nav-item" id="nav-activity" onclick="showPage('activity',this)">
+          <i class="ti ti-history"></i> Activity History
+        </div>
+        <div class="nav-section">Account</div>
+        <div class="nav-item" id="nav-profile" onclick="showPage('profile',this)">
+          <i class="ti ti-user-circle"></i> Profile
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="staff-meta">
+          <div class="staff-avatar-sm">PS</div>
+          <div>
+            <div class="staff-name-sm">Priya Sharma</div>
+            <div class="staff-role-sm">IT Support — Internal</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── MAIN AREA ─── -->
+    <div class="main">
+
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="tb-icon" onclick="toggleSidebar()" style="display:none" id="sidebar-toggle"><i class="ti ti-menu-2" style="font-size:18px"></i></div>
+          <span class="breadcrumb" id="breadcrumb">Home / <span>Dashboard</span></span>
+        </div>
+        <div class="topbar-right">
+          <div class="tb-icon" title="New notifications" onclick="showPage('notifications',document.getElementById('nav-notifications'))">
+            <i class="ti ti-bell" style="font-size:18px"></i>
+            <span class="badge-dot"></span>
+          </div>
+          <div class="tb-icon" title="Settings"><i class="ti ti-settings" style="font-size:18px"></i></div>
+          <div class="topbar-avatar" title="Priya Sharma" onclick="showPage('profile',document.getElementById('nav-profile'))">PS</div>
+          <span class="topbar-username" style="font-size:13px">Priya Sharma</span>
+          <button class="btn-logout" onclick="showLogin()"><i class="ti ti-logout"></i> Logout</button>
+        </div>
+      </div>
+
+      <!-- CONTENT -->
+      <div class="content">
+
+        <!-- ═══ DASHBOARD PAGE ═══ -->
+        <div id="page-dashboard" class="page active">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Dashboard</div>
+              <div class="page-sub">Welcome back, Priya Sharma — IT Support Department</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <span style="font-size:12px;color:#6b7280;align-self:center">Mon, 15 Jun 2026</span>
+            </div>
+          </div>
+
+          <!-- STAT CARDS -->
+          <div class="stat-grid">
+            <div class="stat-card">
+              <div class="stat-icon" style="background:#ede9fe;color:#5b21b6"><i class="ti ti-bell-ringing"></i></div>
+              <div class="stat-label">Total Notifications</div>
+              <div class="stat-val" style="color:#5b21b6">5</div>
+              <div class="stat-sub">3 unread</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:#dbeafe;color:#1d4ed8"><i class="ti ti-ticket"></i></div>
+              <div class="stat-label">Total Tickets</div>
+              <div class="stat-val" style="color:#1d4ed8">5</div>
+              <div class="stat-sub">All from external</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:#dcfce7;color:#166534"><i class="ti ti-circle-check"></i></div>
+              <div class="stat-label">Acknowledged</div>
+              <div class="stat-val" style="color:#166534">2</div>
+              <div class="stat-sub">Notifications</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:#fef3c7;color:#92400e"><i class="ti ti-clock-hour-3"></i></div>
+              <div class="stat-label">Pending Action</div>
+              <div class="stat-val" style="color:#92400e">4</div>
+              <div class="stat-sub">Require response</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:#fee2e2;color:#991b1b"><i class="ti ti-alert-triangle"></i></div>
+              <div class="stat-label">High Priority</div>
+              <div class="stat-val" style="color:#991b1b">3</div>
+              <div class="stat-sub">Combined urgent</div>
+            </div>
+          </div>
+
+          <!-- QUICK ACTIONS -->
+          <div class="qa-grid">
+            <div class="qa-card" onclick="showPage('notifications',document.getElementById('nav-notifications'))">
+              <i class="ti ti-bell-ringing"></i><span>View Notifications</span>
+            </div>
+            <div class="qa-card" onclick="showPage('tickets',document.getElementById('nav-tickets'))">
+              <i class="ti ti-ticket"></i><span>Manage Tickets</span>
+            </div>
+            <div class="qa-card" onclick="showPage('activity',document.getElementById('nav-activity'))">
+              <i class="ti ti-history"></i><span>Activity History</span>
+            </div>
+            <div class="qa-card" onclick="showPage('profile',document.getElementById('nav-profile'))">
+              <i class="ti ti-user-circle"></i><span>My Profile</span>
+            </div>
+          </div>
+
+          <!-- BOTTOM GRID -->
+          <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:20px" class="dash-bottom">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title"><div class="card-title-dot" style="background:#1a73e8"></div> Recent Activity</span>
+                <span style="font-size:12px;color:#6b7280">Last 7 days</span>
+              </div>
+              <div class="activity-item"><div class="act-icon"><i class="ti ti-bell"></i></div><div><div class="act-text">Notification <strong>NTF-0031</strong> received from Arjun Patel — High priority</div><div class="act-time">1 hour ago</div></div></div>
+              <div class="activity-item"><div class="act-icon"><i class="ti ti-ticket"></i></div><div><div class="act-text">Ticket <strong>TKT-0092</strong> opened by Meena Krishnan — IT Support</div><div class="act-time">3 hours ago</div></div></div>
+              <div class="activity-item"><div class="act-icon"><i class="ti ti-circle-check"></i></div><div><div class="act-text">Ticket <strong>TKT-0089</strong> was acknowledged and forwarded</div><div class="act-time">Yesterday</div></div></div>
+              <div class="activity-item"><div class="act-icon"><i class="ti ti-arrows-exchange"></i></div><div><div class="act-text">Notification <strong>NTF-0029</strong> forwarded to Finance Department</div><div class="act-time">2 days ago</div></div></div>
+              <div class="activity-item"><div class="act-icon"><i class="ti ti-lock"></i></div><div><div class="act-text">Ticket <strong>TKT-0085</strong> closed — Issue resolved by IT Support</div><div class="act-time">3 days ago</div></div></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title"><div class="card-title-dot" style="background:#22c55e"></div> Status Overview</span></div>
+              <div style="padding:4px 0">
+                <div style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Notifications</div>
+                <div class="progress-row"><span class="progress-label">Unread</span><div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:60%;background:#7c3aed"></div></div><span class="progress-count">3</span></div>
+                <div class="progress-row"><span class="progress-label">Acknowledged</span><div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:20%;background:#22c55e"></div></div><span class="progress-count">1</span></div>
+                <div class="progress-row"><span class="progress-label">Pending</span><div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:20%;background:#f59e0b"></div></div><span class="progress-count">1</span></div>
+                <div style="border-top:1px solid #f3f4f6;margin:14px 0"></div>
+                <div style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Tickets</div>
+                <div class="progress-row"><span class="progress-label">Open</span><div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:40%;background:#1a73e8"></div></div><span class="progress-count">2</span></div>
+                <div class="progress-row"><span class="progress-label">In Progress</span><div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:40%;background:#f59e0b"></div></div><span class="progress-count">2</span></div>
+                <div class="progress-row"><span class="progress-label">Closed</span><div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:20%;background:#22c55e"></div></div><span class="progress-count">1</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ NOTIFICATIONS PAGE ═══ -->
+        <div id="page-notifications" class="page">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Notifications Received</div>
+              <div class="page-sub">Incoming notifications from external users — review and respond</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-primary" onclick="toast('All notifications marked as read','green','ti-checks')"><i class="ti ti-checks"></i> Mark All Read</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="search-row">
+              <div class="search-wrap">
+                <i class="ti ti-search"></i>
+                <input class="search-input" id="notif-search" type="text" placeholder="Search by ID, sender, subject…" oninput="filterNotif()" />
+              </div>
+              <select class="filter-select" id="notif-dept" onchange="filterNotif()">
+                <option value="">All Departments</option>
+                <option value="Finance">Finance</option>
+                <option value="IT Support">IT Support</option>
+                <option value="HR">HR</option>
+                <option value="Legal">Legal</option>
+                <option value="Operations">Operations</option>
+              </select>
+              <select class="filter-select" id="notif-status" onchange="filterNotif()">
+                <option value="">All Statuses</option>
+                <option value="Unread">Unread</option>
+                <option value="Acknowledged">Acknowledged</option>
+                <option value="Pending">Pending</option>
+              </select>
+              <select class="filter-select" id="notif-priority" onchange="filterNotif()">
+                <option value="">All Priorities</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+              <select class="filter-select" id="notif-date" onchange="filterNotif()">
+                <option value="">All Dates</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+              </select>
+            </div>
+
+            <div class="table-wrap">
+              <table id="notif-table">
+                <thead>
+                  <tr>
+                    <th>Notif ID</th>
+                    <th>Sender</th>
+                    <th>Department</th>
+                    <th>Subject</th>
+                    <th>Date &amp; Time</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="notif-tbody">
+                  <!-- Rows injected by JS -->
+                </tbody>
+              </table>
+            </div>
+            <div class="pag-row">
+              <span style="font-size:12px;color:#6b7280" id="notif-count">Showing 5 records</span>
+              <div class="pagination">
+                <button class="pg-btn">Previous</button>
+                <button class="pg-btn active">1</button>
+                <button class="pg-btn">2</button>
+                <button class="pg-btn">Next</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ TICKETS PAGE ═══ -->
+        <div id="page-tickets" class="page">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Tickets from External Users</div>
+              <div class="page-sub">Manage and respond to all incoming support tickets</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="search-row">
+              <div class="search-wrap">
+                <i class="ti ti-search"></i>
+                <input class="search-input" id="ticket-search" type="text" placeholder="Search by ticket ID, issue, user…" oninput="filterTickets()" />
+              </div>
+              <select class="filter-select" id="ticket-dept" onchange="filterTickets()">
+                <option value="">All Departments</option>
+                <option value="Finance">Finance</option>
+                <option value="IT Support">IT Support</option>
+                <option value="HR">HR</option>
+                <option value="Legal">Legal</option>
+                <option value="Operations">Operations</option>
+              </select>
+              <select class="filter-select" id="ticket-status" onchange="filterTickets()">
+                <option value="">All Statuses</option>
+                <option value="Open">Open</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Closed">Closed</option>
+              </select>
+              <select class="filter-select" id="ticket-priority" onchange="filterTickets()">
+                <option value="">All Priorities</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+              <select class="filter-select" id="ticket-date" onchange="filterTickets()">
+                <option value="">All Dates</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+              </select>
+            </div>
+
+            <div class="table-wrap">
+              <table id="ticket-table">
+                <thead>
+                  <tr>
+                    <th>Ticket ID</th>
+                    <th>External User</th>
+                    <th>Issue Title</th>
+                    <th>Department</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Last Updated</th>
+                    <th>Attach.</th>
+                    <th>Expected Response</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="ticket-tbody">
+                  <!-- Rows injected by JS -->
+                </tbody>
+              </table>
+            </div>
+            <div class="pag-row">
+              <span style="font-size:12px;color:#6b7280" id="ticket-count">Showing 5 records</span>
+              <div class="pagination">
+                <button class="pg-btn">Previous</button>
+                <button class="pg-btn active">1</button>
+                <button class="pg-btn">2</button>
+                <button class="pg-btn">Next</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ ACTIVITY HISTORY PAGE ═══ -->
+        <div id="page-activity" class="page">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Activity History</div>
+              <div class="page-sub">Full audit trail of all actions performed</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="search-row">
+              <div class="search-wrap"><i class="ti ti-search"></i><input class="search-input" type="text" placeholder="Search activity…" /></div>
+              <select class="filter-select"><option>All Types</option><option>Notification</option><option>Ticket</option><option>System</option></select>
+              <select class="filter-select"><option>All Dates</option><option>Today</option><option>This Week</option><option>This Month</option></select>
+            </div>
+            <div style="padding:4px 0">
+              <div class="activity-item"><div class="act-icon" style="background:#ede9fe;color:#5b21b6"><i class="ti ti-bell"></i></div><div><div class="act-text"><strong>NTF-0031</strong> — Notification received from <strong>Arjun Patel</strong>. Status: Unread. Priority: High.</div><div class="act-time">15 Jun 2026 · 09:12 AM</div></div></div>
+              <div class="activity-item"><div class="act-icon" style="background:#dbeafe;color:#1d4ed8"><i class="ti ti-ticket"></i></div><div><div class="act-text"><strong>TKT-0092</strong> — Ticket opened by <strong>Meena Krishnan</strong> — "System Login Failure". Assigned to IT Support.</div><div class="act-time">15 Jun 2026 · 08:47 AM</div></div></div>
+              <div class="activity-item"><div class="act-icon" style="background:#dcfce7;color:#166534"><i class="ti ti-circle-check"></i></div><div><div class="act-text"><strong>NTF-0030</strong> — Acknowledged by Priya Sharma. Response: "Ticket Acknowledged".</div><div class="act-time">14 Jun 2026 · 04:30 PM</div></div></div>
+              <div class="activity-item"><div class="act-icon" style="background:#fff7ed;color:#c2410c"><i class="ti ti-arrows-exchange"></i></div><div><div class="act-text"><strong>TKT-0091</strong> — Reassigned from IT Support to Operations by Priya Sharma.</div><div class="act-time">14 Jun 2026 · 02:15 PM</div></div></div>
+              <div class="activity-item"><div class="act-icon" style="background:#fef3c7;color:#92400e"><i class="ti ti-send"></i></div><div><div class="act-text"><strong>NTF-0029</strong> — Forwarded to Finance Department. Note: "Please review attached budget discrepancy".</div><div class="act-time">13 Jun 2026 · 11:00 AM</div></div></div>
+              <div class="activity-item"><div class="act-icon" style="background:#fee2e2;color:#991b1b"><i class="ti ti-lock"></i></div><div><div class="act-text"><strong>TKT-0089</strong> — Closed by Priya Sharma. Response: "Issue Resolved".</div><div class="act-time">13 Jun 2026 · 10:22 AM</div></div></div>
+              <div class="activity-item"><div class="act-icon" style="background:#dbeafe;color:#1d4ed8"><i class="ti ti-ticket"></i></div><div><div class="act-text"><strong>TKT-0088</strong> — Ticket opened by <strong>Kavya Nair</strong> — "Payroll Discrepancy June". Assigned to Finance.</div><div class="act-time">12 Jun 2026 · 03:45 PM</div></div></div>
+              <div class="activity-item"><div class="act-icon" style="background:#ede9fe;color:#5b21b6"><i class="ti ti-bell"></i></div><div><div class="act-text"><strong>NTF-0028</strong> — Notification received from <strong>Suresh Nair</strong>. Status: Pending. Priority: Medium.</div><div class="act-time">12 Jun 2026 · 01:20 PM</div></div></div>
+            </div>
+            <div class="pag-row">
+              <span style="font-size:12px;color:#6b7280">Showing 8 of 64 records</span>
+              <div class="pagination">
+                <button class="pg-btn">Previous</button>
+                <button class="pg-btn active">1</button>
+                <button class="pg-btn">2</button>
+                <button class="pg-btn">3</button>
+                <button class="pg-btn">Next</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ PROFILE PAGE ═══ -->
+        <div id="page-profile" class="page">
+          <div class="page-header">
+            <div><div class="page-title">My Profile</div><div class="page-sub">View and manage your account information</div></div>
+          </div>
+          <div class="profile-card">
+            <div class="profile-avatar">PS</div>
+            <div style="flex:1">
+              <div class="profile-name">Priya Sharma</div>
+              <div class="profile-meta">IT Support Department &nbsp;·&nbsp; Internal Staff &nbsp;·&nbsp; <span class="badge badge-ack">Active</span></div>
+              <div class="profile-meta" style="margin-top:6px"><i class="ti ti-mail" style="font-size:13px"></i> p.sharma@dept.gov &nbsp;·&nbsp; <i class="ti ti-phone" style="font-size:13px"></i> +91 99001 23456</div>
+            </div>
+            <button class="btn btn-primary"><i class="ti ti-edit"></i> Edit Profile</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+            <div class="card">
+              <div class="card-header"><span class="card-title"><div class="card-title-dot" style="background:#1a73e8"></div> Account Details</span></div>
+              <div class="info-row"><span class="info-key">Staff ID</span><span>STF-0024</span></div>
+              <div class="info-row"><span class="info-key">Username</span><span>priya.sharma</span></div>
+              <div class="info-row"><span class="info-key">Auth Type</span><span><span class="badge badge-unread">LDAP</span></span></div>
+              <div class="info-row"><span class="info-key">Department</span><span>IT Support</span></div>
+              <div class="info-row"><span class="info-key">Role</span><span>Internal Staff</span></div>
+              <div class="info-row"><span class="info-key">Joined</span><span>01 Jan 2024</span></div>
+              <div class="info-row"><span class="info-key">Last Login</span><span>15 Jun 2026 · 09:00 AM</span></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title"><div class="card-title-dot" style="background:#22c55e"></div> My Stats</span></div>
+              <div class="info-row"><span class="info-key">Notifications Received</span><span style="font-weight:600;color:#5b21b6">5</span></div>
+              <div class="info-row"><span class="info-key">Tickets Managed</span><span style="font-weight:600;color:#1d4ed8">5</span></div>
+              <div class="info-row"><span class="info-key">Acknowledged</span><span style="font-weight:600;color:#166534">2</span></div>
+              <div class="info-row"><span class="info-key">Forwarded</span><span style="font-weight:600;color:#0369a1">1</span></div>
+              <div class="info-row"><span class="info-key">Tickets Closed</span><span style="font-weight:600;color:#166534">1</span></div>
+              <div class="info-row"><span class="info-key">Avg. Response Time</span><span style="font-weight:600">3.2 hrs</span></div>
+              <div class="info-row"><span class="info-key">Pending Actions</span><span style="font-weight:600;color:#92400e">4</span></div>
+            </div>
+          </div>
+          <div class="card" style="max-width:480px">
+            <div class="card-header"><span class="card-title"><div class="card-title-dot" style="background:#f59e0b"></div> Change Password</span></div>
+            <div class="form-group">
+              <label class="form-label">Current Password</label>
+              <input class="form-input" id="curr-pass" type="password" placeholder="Enter current password" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">New Password</label>
+              <input class="form-input" id="new-pass" type="password" placeholder="Enter new password" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm Password</label>
+              <input class="form-input" id="conf-pass" type="password" placeholder="Confirm new password" />
+            </div>
+            <button class="btn btn-primary" onclick="toast('Password updated successfully','green','ti-lock-check')"><i class="ti ti-lock-check"></i> Update Password</button>
+          </div>
+        </div>
+
+      </div><!-- /content -->
+    </div><!-- /main -->
+  </div><!-- /app -->
+</div><!-- /main-app -->
+
+<!-- ═══════════════════════ TICKET TIMELINE MODAL ═══════════════════════ -->
+<div class="modal-overlay" id="modal-ticket">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-ticket-id">TKT-0092 — Ticket Details &amp; Timeline</span>
+      <button class="modal-close" onclick="closeModal('modal-ticket')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="meta-grid" id="modal-ticket-meta" style="margin-bottom:20px"></div>
+      <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Timeline &amp; History</span><div class="section-divider-line"></div></div>
+      <div class="tl" id="modal-ticket-timeline"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm btn-sm-red" onclick="closeModal('modal-ticket')"><i class="ti ti-x"></i> Close</button>
+      <button class="btn btn-primary" onclick="toast('Continuing ticket conversation…','blue','ti-message-circle')"><i class="ti ti-message-circle"></i> Continue Ticket</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATION VIEW MODAL -->
+<div class="modal-overlay" id="modal-notif">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-notif-id">NTF-0031 — Notification Details</span>
+      <button class="modal-close" onclick="closeModal('modal-notif')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="meta-grid" id="modal-notif-meta" style="margin-bottom:20px"></div>
+      <div style="background:#f0f7ff;border-left:3px solid #1a73e8;border-radius:0 8px 8px 0;padding:14px 18px;margin-top:8px">
+        <div style="font-size:11px;color:#1d4ed8;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Message Body</div>
+        <div id="modal-notif-body" style="font-size:13px;color:#374151;line-height:1.7"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm btn-sm-red" onclick="closeModal('modal-notif')"><i class="ti ti-x"></i> Close</button>
+      <button class="btn-sm btn-sm-orange" onclick="closeModal('modal-notif');toast('Notification forwarded','orange','ti-send')"><i class="ti ti-send"></i> Forward</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-notif');toast('Notification acknowledged','green','ti-circle-check')"><i class="ti ti-circle-check"></i> Acknowledge</button>
+    </div>
+  </div>
+</div>
+
+<!-- REASSIGN MODAL -->
+<div class="modal-overlay" id="modal-reassign">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <span class="modal-title">Reassign Ticket</span>
+      <button class="modal-close" onclick="closeModal('modal-reassign')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Ticket ID</label>
+        <input class="form-input" id="reassign-tid" type="text" readonly style="background:#f9fafb" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reassign To Department <span style="color:#ef4444">*</span></label>
+        <select class="form-input" id="reassign-dept" style="cursor:pointer">
+          <option value="">— Select Department —</option>
+          <option value="Finance">Finance</option>
+          <option value="IT Support">IT Support</option>
+          <option value="HR">Human Resources</option>
+          <option value="Legal">Legal</option>
+          <option value="Operations">Operations</option>
+          <option value="Procurement">Procurement</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reason for Reassignment</label>
+        <textarea class="form-input" id="reassign-note" style="height:80px;resize:vertical" placeholder="Enter reason…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm" onclick="closeModal('modal-reassign')">Cancel</button>
+      <button class="btn btn-primary" onclick="doReassign()"><i class="ti ti-arrows-exchange"></i> Confirm Reassign</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════════════ */
+const NOTIF_DATA = [
+  {
+    id:'NTF-0031', sender:'Arjun Patel', dept:'IT Support',
+    subject:'System Login Failure — Unable to Access Portal',
+    datetime:'15 Jun 2026, 09:12 AM', priority:'High', status:'Unread',
+    body:'Dear IT Support Team, I have been unable to log into the internal portal since this morning. The system shows "Authentication Failed" even with correct credentials. This is blocking my work urgently. Please advise at the earliest.',
+    customResp:[]
+  },
+  {
+    id:'NTF-0030', sender:'Meena Krishnan', dept:'Finance',
+    subject:'Budget Variance Report — June 2026',
+    datetime:'14 Jun 2026, 03:45 PM', priority:'Medium', status:'Acknowledged',
+    body:'Please find attached the budget variance report for June 2026. There are some discrepancies in the procurement sub-head that require clarification from your end before final submission.',
+    customResp:['Variance Report Reviewed','Escalate to CFO']
+  },
+  {
+    id:'NTF-0029', sender:'Rajan Mehendale', dept:'Operations',
+    subject:'Field Operations Delay — Vendor Non-Compliance',
+    datetime:'13 Jun 2026, 11:00 AM', priority:'High', status:'Pending',
+    body:'We have observed repeated delays from Vendor V-0192 in delivering equipment to the field sites. Non-compliance is affecting scheduled operations. Requesting an urgent review and directive from your department.',
+    customResp:[]
+  },
+  {
+    id:'NTF-0028', sender:'Suresh Nair', dept:'HR',
+    subject:'Leave Encashment Query — Annual Policy 2026',
+    datetime:'12 Jun 2026, 01:20 PM', priority:'Low', status:'Pending',
+    body:'I would like to enquire about the leave encashment policy for annual earned leaves. As per the circular issued in January, I have 18 earned leaves pending. Kindly clarify the process and timeline for encashment.',
+    customResp:['Refer to HR Circular 2026']
+  },
+  {
+    id:'NTF-0027', sender:'Kavya Nair', dept:'Legal',
+    subject:'Contract Amendment — Agreement No. CA-0488',
+    datetime:'11 Jun 2026, 10:30 AM', priority:'High', status:'Unread',
+    body:'The third-party vendor has requested amendments to clauses 4.2 and 7.1 of Agreement CA-0488. I have attached the tracked-changes version for your review. Please provide your approval or comments by 17 June 2026.',
+    customResp:['Sent to Legal Review Board']
+  }
+];
+
+const TICKET_DATA = [
+  {
+    id:'TKT-0092', user:'Meena Krishnan', issue:'System Login Failure After Password Reset',
+    dept:'IT Support', priority:'High', status:'Open',
+    updated:'15 Jun 2026, 08:47 AM', attach:true,
+    timeline:[
+      {dot:'', date:'15 Jun 2026 · 08:47 AM', text:'Ticket submitted by Meena Krishnan via External Portal.'},
+      {dot:'blue', date:'15 Jun 2026 · 09:15 AM', text:'Ticket received and assigned to IT Support by system.'},
+      {dot:'orange', date:'15 Jun 2026 · 09:20 AM', text:'Acknowledged by Priya Sharma — currently under review.'}
+    ],
+    customResp:[]
+  },
+  {
+    id:'TKT-0091', user:'Arjun Patel', issue:'VPN Access Unavailable from Remote Location',
+    dept:'Operations', priority:'Medium', status:'In Progress',
+    updated:'14 Jun 2026, 04:10 PM', attach:false,
+    timeline:[
+      {dot:'', date:'13 Jun 2026 · 11:30 AM', text:'Ticket submitted by Arjun Patel.'},
+      {dot:'blue', date:'13 Jun 2026 · 12:00 PM', text:'Assigned to IT Support.'},
+      {dot:'orange', date:'14 Jun 2026 · 09:00 AM', text:'Reassigned to Operations by Priya Sharma.'},
+      {dot:'orange', date:'14 Jun 2026 · 04:10 PM', text:'Operations team investigating — awaiting network logs.'}
+    ],
+    customResp:['Escalate to Network Team']
+  },
+  {
+    id:'TKT-0090', user:'Rajan Mehendale', issue:'Payroll Slip Not Generated — May 2026',
+    dept:'Finance', priority:'Medium', status:'In Progress',
+    updated:'13 Jun 2026, 02:30 PM', attach:true,
+    timeline:[
+      {dot:'', date:'12 Jun 2026 · 09:00 AM', text:'Ticket submitted by Rajan Mehendale.'},
+      {dot:'blue', date:'12 Jun 2026 · 09:30 AM', text:'Assigned to Finance Department.'},
+      {dot:'orange', date:'13 Jun 2026 · 02:30 PM', text:'Finance team reviewing payroll system logs.'}
+    ],
+    customResp:[]
+  },
+  {
+    id:'TKT-0089', user:'Suresh Nair', issue:'Leave Application Rejected Without Reason',
+    dept:'HR', priority:'Low', status:'Closed',
+    updated:'13 Jun 2026, 10:22 AM', attach:false,
+    timeline:[
+      {dot:'', date:'10 Jun 2026 · 03:00 PM', text:'Ticket submitted by Suresh Nair.'},
+      {dot:'blue', date:'10 Jun 2026 · 03:30 PM', text:'Assigned to HR Department.'},
+      {dot:'green', date:'13 Jun 2026 · 10:00 AM', text:'HR reviewed and provided explanation via email.'},
+      {dot:'green', date:'13 Jun 2026 · 10:22 AM', text:'Ticket closed by Priya Sharma — Issue Resolved.'}
+    ],
+    customResp:[]
+  },
+  {
+    id:'TKT-0088', user:'Kavya Nair', issue:'Expense Reimbursement Pending Since March',
+    dept:'Finance', priority:'High', status:'Open',
+    updated:'12 Jun 2026, 03:45 PM', attach:true,
+    timeline:[
+      {dot:'', date:'12 Jun 2026 · 03:00 PM', text:'Ticket submitted by Kavya Nair.'},
+      {dot:'blue', date:'12 Jun 2026 · 03:45 PM', text:'Assigned to Finance. Marked High Priority by system.'}
+    ],
+    customResp:['Sent to Accounts Team']
+  }
+];
+
+const STD_RESP = [
+  {value:'', label:'— Select Response —'},
+  {value:'ticket_ack', label:'Ticket Acknowledged'},
+  {value:'attach_err', label:'Attachment Not Opening'},
+  {value:'need_info', label:'Need More Information'},
+  {value:'resolved', label:'Issue Resolved'},
+  {value:'invalid', label:'Invalid Request'},
+  {value:'fwd_dept', label:'Forwarded to Another Department'}
+];
+
+/* ═══════════════════════════════════════════════════════════
+   RENDER FUNCTIONS
+═══════════════════════════════════════════════════════════ */
+function priorityBadge(p){
+  const m={High:'badge-high',Medium:'badge-medium',Low:'badge-low'};
+  return `<span class="badge ${m[p]||'badge-low'}">${p}</span>`;
+}
+function statusBadgeN(s){
+  const m={Unread:'badge-unread',Acknowledged:'badge-ack',Pending:'badge-pending'};
+  return `<span class="badge ${m[s]||''}">${s}</span>`;
+}
+function statusBadgeT(s){
+  const m={Open:'badge-open','In Progress':'badge-process',Closed:'badge-closed'};
+  return `<span class="badge ${m[s]||''}">${s}</span>`;
+}
+function respDropdown(id, customResp, prefix){
+  const opts = [...STD_RESP, ...customResp.map(c=>({value:'custom_'+c.replace(/\s/g,'_'),label:c}))];
+  const html = opts.map(o=>`<option value="${o.value}">${o.label}</option>`).join('');
+  return `<select class="resp-select" id="${prefix}-resp-${id}" name="${prefix}_resp_${id}">${html}</select>`;
+}
+
+function renderNotifs(data){
+  const tbody = document.getElementById('notif-tbody');
+  tbody.innerHTML = data.map(n=>`
+    <tr data-id="${n.id}" data-dept="${n.dept}" data-status="${n.status}" data-priority="${n.priority}">
+      <td><span class="td-id">${n.id}</span></td>
+      <td style="white-space:nowrap">${n.sender}</td>
+      <td>${n.dept}</td>
+      <td style="max-width:220px"><span title="${n.subject}">${n.subject.length>45?n.subject.substring(0,45)+'…':n.subject}</span></td>
+      <td style="white-space:nowrap;font-size:12px;color:#6b7280">${n.datetime}</td>
+      <td>${priorityBadge(n.priority)}</td>
+      <td>${statusBadgeN(n.status)}</td>
+      <td>
+        <div class="action-cluster">
+          <button class="btn-sm btn-sm-blue" id="btn-view-notif-${n.id}" onclick="viewNotif('${n.id}')"><i class="ti ti-eye"></i> View</button>
+          <button class="btn-sm btn-sm-green" id="btn-ack-notif-${n.id}" onclick="ackNotif('${n.id}')"><i class="ti ti-circle-check"></i> Ack</button>
+          <button class="btn-sm btn-sm-orange" id="btn-fwd-notif-${n.id}" onclick="fwdNotif('${n.id}')"><i class="ti ti-send"></i> Fwd</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+  document.getElementById('notif-count').textContent = `Showing ${data.length} record${data.length!==1?'s':''}`;
+}
+
+function renderTickets(data){
+  const tbody = document.getElementById('ticket-tbody');
+  tbody.innerHTML = data.map(t=>`
+    <tr data-id="${t.id}" data-dept="${t.dept}" data-status="${t.status}" data-priority="${t.priority}">
+      <td><span class="td-id">${t.id}</span></td>
+      <td style="white-space:nowrap">${t.user}</td>
+      <td style="max-width:180px"><span title="${t.issue}">${t.issue.length>40?t.issue.substring(0,40)+'…':t.issue}</span></td>
+      <td>${t.dept}</td>
+      <td>${priorityBadge(t.priority)}</td>
+      <td>${statusBadgeT(t.status)}</td>
+      <td style="white-space:nowrap;font-size:12px;color:#6b7280">${t.updated}</td>
+      <td style="text-align:center">${t.attach?`<span class="attach-icon" title="Has attachment"><i class="ti ti-paperclip"></i></span>`:`<span class="no-attach" title="No attachment"><i class="ti ti-minus"></i></span>`}</td>
+      <td>${respDropdown(t.id, t.customResp, 'ticket')}</td>
+      <td>
+        <div class="action-cluster">
+          <button class="btn-sm btn-sm-blue" id="btn-open-${t.id}" onclick="openTicket('${t.id}')"><i class="ti ti-external-link"></i> Open</button>
+          <button class="btn-sm btn-sm-green" id="btn-cont-${t.id}" onclick="contTicket('${t.id}')"><i class="ti ti-message-circle"></i> Continue</button>
+          <button class="btn-sm btn-sm-orange" id="btn-reassign-${t.id}" onclick="openReassign('${t.id}')"><i class="ti ti-arrows-exchange"></i> Reassign</button>
+          ${t.status!=='Closed'?`<button class="btn-sm btn-sm-red" id="btn-close-${t.id}" onclick="closeTicket('${t.id}')"><i class="ti ti-lock"></i> Close</button>`:'<button class="btn-sm" disabled style="opacity:.5;cursor:default"><i class="ti ti-lock"></i> Closed</button>'}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+  document.getElementById('ticket-count').textContent = `Showing ${data.length} record${data.length!==1?'s':''}`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FILTER FUNCTIONS
+═══════════════════════════════════════════════════════════ */
+function filterNotif(){
+  const q=(document.getElementById('notif-search').value||'').toLowerCase();
+  const dept=document.getElementById('notif-dept').value;
+  const status=document.getElementById('notif-status').value;
+  const priority=document.getElementById('notif-priority').value;
+  const filtered=NOTIF_DATA.filter(n=>{
+    if(dept && n.dept!==dept) return false;
+    if(status && n.status!==status) return false;
+    if(priority && n.priority!==priority) return false;
+    if(q && !(n.id.toLowerCase().includes(q)||n.sender.toLowerCase().includes(q)||n.subject.toLowerCase().includes(q))) return false;
+    return true;
+  });
+  renderNotifs(filtered);
+}
+
+function filterTickets(){
+  const q=(document.getElementById('ticket-search').value||'').toLowerCase();
+  const dept=document.getElementById('ticket-dept').value;
+  const status=document.getElementById('ticket-status').value;
+  const priority=document.getElementById('ticket-priority').value;
+  const filtered=TICKET_DATA.filter(t=>{
+    if(dept && t.dept!==dept) return false;
+    if(status && t.status!==status) return false;
+    if(priority && t.priority!==priority) return false;
+    if(q && !(t.id.toLowerCase().includes(q)||t.user.toLowerCase().includes(q)||t.issue.toLowerCase().includes(q))) return false;
+    return true;
+  });
+  renderTickets(filtered);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ACTIONS — NOTIFICATIONS
+═══════════════════════════════════════════════════════════ */
+function viewNotif(id){
+  const n=NOTIF_DATA.find(x=>x.id===id); if(!n) return;
+  document.getElementById('modal-notif-id').textContent=`${n.id} — Notification Details`;
+  document.getElementById('modal-notif-meta').innerHTML=`
+    <div class="meta-row"><div class="meta-key">Notification ID</div><div class="meta-val">${n.id}</div></div>
+    <div class="meta-row"><div class="meta-key">Sender</div><div class="meta-val">${n.sender}</div></div>
+    <div class="meta-row"><div class="meta-key">Department</div><div class="meta-val">${n.dept}</div></div>
+    <div class="meta-row"><div class="meta-key">Date &amp; Time</div><div class="meta-val">${n.datetime}</div></div>
+    <div class="meta-row"><div class="meta-key">Priority</div><div class="meta-val">${priorityBadge(n.priority)}</div></div>
+    <div class="meta-row"><div class="meta-key">Status</div><div class="meta-val">${statusBadgeN(n.status)}</div></div>
+    <div class="meta-row" style="grid-column:1/-1"><div class="meta-key">Subject</div><div class="meta-val">${n.subject}</div></div>
+  `;
+  document.getElementById('modal-notif-body').textContent=n.body;
+  openModal('modal-notif');
+}
+
+function ackNotif(id){
+  const n=NOTIF_DATA.find(x=>x.id===id); if(!n) return;
+  n.status='Acknowledged';
+  renderNotifs(NOTIF_DATA);
+  toast(`${id} acknowledged successfully`,'green','ti-circle-check');
+}
+
+function fwdNotif(id){
+  const n=NOTIF_DATA.find(x=>x.id===id); if(!n) return;
+  n.status='Acknowledged';
+  renderNotifs(NOTIF_DATA);
+  toast(`${id} forwarded to relevant department`,'orange','ti-send');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ACTIONS — TICKETS
+═══════════════════════════════════════════════════════════ */
+function openTicket(id){
+  const t=TICKET_DATA.find(x=>x.id===id); if(!t) return;
+  document.getElementById('modal-ticket-id').textContent=`${t.id} — Details & Timeline`;
+  document.getElementById('modal-ticket-meta').innerHTML=`
+    <div class="meta-row"><div class="meta-key">Ticket ID</div><div class="meta-val">${t.id}</div></div>
+    <div class="meta-row"><div class="meta-key">External User</div><div class="meta-val">${t.user}</div></div>
+    <div class="meta-row"><div class="meta-key">Department</div><div class="meta-val">${t.dept}</div></div>
+    <div class="meta-row"><div class="meta-key">Priority</div><div class="meta-val">${priorityBadge(t.priority)}</div></div>
+    <div class="meta-row"><div class="meta-key">Status</div><div class="meta-val">${statusBadgeT(t.status)}</div></div>
+    <div class="meta-row"><div class="meta-key">Last Updated</div><div class="meta-val">${t.updated}</div></div>
+    <div class="meta-row" style="grid-column:1/-1"><div class="meta-key">Issue Title</div><div class="meta-val">${t.issue}</div></div>
+  `;
+  const dotClass={blue:'tl-dot tl-dot',green:'tl-dot tl-dot-green',orange:'tl-dot tl-dot-orange',red:'tl-dot tl-dot-red'};
+  document.getElementById('modal-ticket-timeline').innerHTML=t.timeline.map(e=>`
+    <div class="tl-item">
+      <div class="${e.dot?`tl-dot tl-dot-${e.dot}`:'tl-dot'}"></div>
+      <div class="tl-date">${e.date}</div>
+      <div class="tl-text">${e.text}</div>
+    </div>
+  `).join('');
+  openModal('modal-ticket');
+}
+
+function contTicket(id){
+  toast(`Continuing conversation on ${id}…`,'blue','ti-message-circle');
+}
+
+function openReassign(id){
+  document.getElementById('reassign-tid').value=id;
+  document.getElementById('reassign-dept').value='';
+  document.getElementById('reassign-note').value='';
+  openModal('modal-reassign');
+}
+
+function doReassign(){
+  const id=document.getElementById('reassign-tid').value;
+  const dept=document.getElementById('reassign-dept').value;
+  if(!dept){alert('Please select a department.');return;}
+  closeModal('modal-reassign');
+  const t=TICKET_DATA.find(x=>x.id===id);
+  if(t){
+    t.dept=dept;
+    t.status='In Progress';
+    t.updated='Just now';
+    renderTickets(TICKET_DATA);
+  }
+  toast(`${id} reassigned to ${dept}`,'orange','ti-arrows-exchange');
+}
+
+function closeTicket(id){
+  if(!confirm(`Close ticket ${id}? This action will mark it as resolved.`)) return;
+  const t=TICKET_DATA.find(x=>x.id===id);
+  if(t){
+    t.status='Closed';
+    t.updated='Just now';
+    renderTickets(TICKET_DATA);
+  }
+  toast(`${id} closed successfully`,'green','ti-lock');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODAL HELPERS
+═══════════════════════════════════════════════════════════ */
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',function(e){if(e.target===this) this.classList.remove('open')});
+});
+
+/* ═══════════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════════ */
+function toast(msg, type, icon){
+  const wrap=document.getElementById('toast-wrap');
+  const el=document.createElement('div');
+  el.className=`toast${type==='green'?' toast-green':type==='orange'?' toast-orange':' toast-blue'}`;
+  el.innerHTML=`<i class="ti ${icon||'ti-info-circle'}"></i>${msg}`;
+  wrap.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transform='translateX(20px)';el.style.transition='.3s';setTimeout(()=>el.remove(),300)},3000);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PAGE NAVIGATION
+═══════════════════════════════════════════════════════════ */
+const PAGE_META={
+  dashboard:{section:'Home',title:'Dashboard'},
+  notifications:{section:'Inbox',title:'Notifications'},
+  tickets:{section:'Inbox',title:'Tickets'},
+  activity:{section:'Records',title:'Activity History'},
+  profile:{section:'Account',title:'Profile'}
+};
+function showPage(id, navEl){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const pg=document.getElementById('page-'+id);
+  if(pg) pg.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(navEl) navEl.classList.add('active');
+  const meta=PAGE_META[id]||{section:'',title:id};
+  const bc=document.getElementById('breadcrumb');
+  if(bc) bc.innerHTML=`${meta.section} / <span>${meta.title}</span>`;
+  document.querySelector('.content').scrollTop=0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════════════════════ */
+function showApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('main-app').style.display='block';
+  renderNotifs(NOTIF_DATA);
+  renderTickets(TICKET_DATA);
+}
+function showLogin(){
+  document.getElementById('main-app').style.display='none';
+  document.getElementById('login-screen').style.display='block';
+}
+
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+}
+
+/* Responsive sidebar toggle visibility */
+function checkWidth(){
+  const t=document.getElementById('sidebar-toggle');
+  if(window.innerWidth<=700){t.style.display='flex';}
+  else{t.style.display='none';document.getElementById('sidebar').classList.remove('mobile-open');}
+}
+window.addEventListener('resize',checkWidth);
+checkWidth();
+</script>
+</body>
+</html>
