@@ -1,46 +1,82 @@
 const pool = require ("../db.js");
 
-async function createTicket (req,res) {
+async function createTicket(req, res) {
+    try {
+        console.log("\n========== CREATE TICKET ==========");
+        console.log("req.body =", req.body);
+        console.log("req.user =", req.user);
 
-    console.log(
-"createtickets called"
-);
+        const user_id = req.user.user_id;
+        const title = req.body.title;
+        const departmentMap = {
+    finance: "Finance",
+    it_support: "IT Support",
+    human_resources: "Human Resources",
+    legal: "Legal",
+    operations: "Operations"
+};
 
-     const user_id = req.user.user_id;
-     
-     const title = req.body.title;
-     const department_name = req.body.department;
-   //  const priority = req.body.priority;
-     const description = req.body.description;
-     const response = req.body.expectedResponses;
+const department_name =
+    departmentMap[req.body.department_name] || req.body.department_name;
+        const description = req.body.description;
+        const response = req.body.expectedResponses || [];
 
+        console.log("Department received:", department_name);
+        console.log("Type:", typeof department_name);
 
+        // Show every department currently in the database
+        const [allDepartments] = await pool.query(
+            "SELECT department_id, department_name FROM departments"
+        );
+        console.log("Departments in DB:", allDepartments);
 
-     const [dept] = await pool.query(`select department_id from departments where department_name=?`,[department_name]);
-    
-    if(dept.length===0){
-return res.status(404).json({message:"department not found"});
+        const [dept] = await pool.query(
+            "SELECT department_id FROM departments WHERE department_name = ?",
+            [department_name]
+        );
+
+        console.log("Department query result:", dept);
+
+        if (dept.length === 0) {
+            return res.status(404).json({
+                message: "department not found",
+                receivedDepartment: department_name
+            });
+        }
+
+        const department_id = dept[0].department_id;
+
+        const [result] = await pool.query(
+            "INSERT INTO tickets(title, description, created_by, assigned_department) VALUES (?, ?, ?, ?)",
+            [title, description, user_id, department_id]
+        );
+
+        console.log("Ticket inserted. ID:", result.insertId);
+
+        for (const r of response) {
+            await pool.query(
+                "INSERT INTO expected_responses(ticket_id, response_text) VALUES (?, ?)",
+                [result.insertId, r]
+            );
+        }
+
+        console.log("Ticket created successfully.");
+
+        res.json({
+            success: true,
+            message: "ticket created"
+        });
+
+    } catch (err) {
+        console.log("========== CREATE TICKET ERROR ==========");
+        console.log(err);
+
+        res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
 }
-
-     const department_id = dept[0].department_id;
-
-
-    const [result] = await pool.query (`insert into tickets (title , description , created_by , assigned_department ) values (?,?,?,?) ` ,
-         [title ,description ,user_id , department_id ]);
-
-    const ticketId =
-result.insertId;
-
-for( const r of response ){
-      await pool.query(
-`INSERT INTO expected_responses ( ticket_id, response_text)
-VALUES (?,?) `,[ticketId,r]); 
-}
-
-res.json({ message: "ticket created" });
-
-}
-
 
 async function getTickets(req,res){
 

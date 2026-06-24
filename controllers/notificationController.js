@@ -2,33 +2,45 @@ const pool = require ("../db.js");
 const notification = require("../routes/notification.js");
 
 async function createNotification(req,res) {
+
+     console.log("req.body =", req.body);
+
     const user_id = req.user.user_id;
 
     const title = req.body.title;
 
     const description = req.body.description;
 
-    const [result] = await pool.query(`insert into notifications (title,description,created_by) values (?,?,?)`,[title,description,user_id]);
-    
-    const department_names = req.body.department_names;
-    
+    const [result] = await pool.query(
+        `insert into notifications (title,description,created_by) values (?,?,?)`,
+        [title,description,user_id]
+    );
+
+    // CHANGED THIS LINE ONLY
+    const department_names = req.body.departments;
+
     const notificationId = result.insertId;
 
-for(const deptName of department_names){
+    for(const deptName of department_names){
 
-const [rows] = await pool.query( `SELECT department_id FROM departments WHERE department_name=?`, [deptName] );
+        const [rows] = await pool.query(
+            `SELECT department_id FROM departments WHERE department_name=?`,
+            [deptName]
+        );
 
-const departmentId = rows[0].department_id;
+        const departmentId = rows[0].department_id;
 
-await pool.query(`INSERT INTO notification_master(notification_id,department_id) VALUES (?,?)`, [notificationId,departmentId]);
+        await pool.query(
+            `INSERT INTO notification_master(notification_id,department_id) VALUES (?,?)`,
+            [notificationId,departmentId]
+        );
+    }
 
-}
-
-res.json({ message: "notification created" });
+    res.json({ message: "notification created" });
 }
 
 async function getNotifications (req,res){
-   
+
     const [rows] =
 
 await pool.query( `SELECT n.notification_id , n.title, u.username , n.created_at,
@@ -79,7 +91,6 @@ n.created_at,
 
 u.username,
 
-
 GROUP_CONCAT(
 
 d.department_name
@@ -88,9 +99,7 @@ SEPARATOR ',')
 
 AS departments
 
-
 FROM notifications n
-
 
 JOIN users u
 
@@ -130,9 +139,7 @@ return res.status(404).json({message:"Notification not found"});
 
 }
 
-
 rows[0].departments = rows[0].departments.split(",");
-
 
 res.json(rows[0]);
 
@@ -148,8 +155,6 @@ res.status(500).json({message:
 }
 
 }
-
-
 
 module.exports = {
     createNotification , getNotifications , getNotificationDetail

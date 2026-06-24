@@ -20,10 +20,10 @@ async function signup(req,res) {
             message:"signedup"
         });
     }
-   catch(err){
-
-          res.status(500).json({error:err.message});
-   }    
+catch(err){
+    console.log(err);
+    res.status(500).json({ error: err.message });
+}
 }
 
 async function signin(req,res){
