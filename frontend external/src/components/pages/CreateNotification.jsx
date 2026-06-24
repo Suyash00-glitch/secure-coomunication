@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { NOTIF_DEPARTMENTS } from "../../constants";
+import { useState, useEffect } from "react";
 import { apiJson } from "../../api/client";
 
 /**
@@ -9,14 +8,38 @@ import { apiJson } from "../../api/client";
 export default function CreateNotification({ onNavigate }) {
   const [notifTitle, setNotifTitle] = useState("");
   const [notifDescription, setNotifDescription] = useState("");
-  const [notifDeptChecked, setNotifDeptChecked] = useState(
-    NOTIF_DEPARTMENTS.reduce((acc, d) => ({ ...acc, [d.id]: d.defaultChecked }), {})
-  );
+  const [departments, setDepartments] = useState([]);
+const [notifDeptChecked, setNotifDeptChecked] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
-  function getDepartmentValues() {
-    return NOTIF_DEPARTMENTS.filter(d => notifDeptChecked[d.id]).map(d => d.label);
+  useEffect(() => {
+  async function loadDepartments() {
+    try {
+      const { res, data } = await apiJson("/api/departments");
+
+      if (res.ok) {
+        setDepartments(data);
+
+        const checked = {};
+        data.forEach(d => {
+          checked[d.department_name] = false;
+        });
+
+        setNotifDeptChecked(checked);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   }
+
+  loadDepartments();
+}, []);
+
+ function getDepartmentValues() {
+  return Object.keys(notifDeptChecked).filter(
+    key => notifDeptChecked[key]
+  );
+}
 
   async function createNotify() {
     setSubmitting(true);
@@ -28,7 +51,11 @@ export default function CreateNotification({ onNavigate }) {
       const { res, data } = await apiJson("/api/notifications", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, description, departments })
+       body: JSON.stringify({
+  title,
+  description,
+  department_names: departments
+})
       });
 
       console.log(data);
@@ -52,7 +79,13 @@ export default function CreateNotification({ onNavigate }) {
     if (confirmed) {
       setNotifTitle("");
       setNotifDescription("");
-      setNotifDeptChecked(NOTIF_DEPARTMENTS.reduce((acc, d) => ({ ...acc, [d.id]: d.defaultChecked }), {}));
+      const checked = {};
+
+departments.forEach(d => {
+  checked[d.department_name] = false;
+});
+
+setNotifDeptChecked(checked);
       onNavigate("dashboard");
     }
   }
@@ -76,16 +109,22 @@ export default function CreateNotification({ onNavigate }) {
             <label className="form-label">Select Departments <span style={{ color: "#ef4444" }}>*</span></label>
             <div style={{ border: "1px solid #d1d5db", borderRadius: 8, padding: 12 }}>
               <div className="dept-checkboxes">
-                {NOTIF_DEPARTMENTS.map(d => (
-                  <label className="dept-check" key={d.id}>
-                    <input
-                      id={d.id}
-                      type="checkbox"
-                      checked={!!notifDeptChecked[d.id]}
-                      onChange={e => setNotifDeptChecked(prev => ({ ...prev, [d.id]: e.target.checked }))}
-                    /> {d.label}
-                  </label>
-                ))}
+               {departments.map(d => (
+  <label className="dept-check" key={d.department_id}>
+    <input
+      id={d.department_name}
+      type="checkbox"
+      checked={!!notifDeptChecked[d.department_name]}
+      onChange={e =>
+        setNotifDeptChecked(prev => ({
+          ...prev,
+          [d.department_name]: e.target.checked
+        }))
+      }
+    />
+    {d.department_name}
+  </label>
+))}
               </div>
             </div>
           </div>

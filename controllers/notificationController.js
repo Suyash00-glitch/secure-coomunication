@@ -17,7 +17,9 @@ async function createNotification(req,res) {
     );
 
     // CHANGED THIS LINE ONLY
-    const department_names = req.body.departments;
+    const department_names = req.body.department_names;
+    console.log("department_names =", department_names);
+console.log(Array.isArray(department_names));
 
     const notificationId = result.insertId;
 

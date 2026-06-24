@@ -11,6 +11,7 @@ const {notificationRouter} =require("./routes/notification.js");
 
 const {ticketRouter} =require("./routes/ticket.js");
 
+const {departmentRouter} = require("./routes/department.js");
 
 app.use(express.json());
 
@@ -26,6 +27,7 @@ app.use("/api",ticketRouter);
 
 app.use("/api",notificationRouter);
 
+app.use("/api", departmentRouter);
 
 app.get(
 "/",(req,res)=>{res.send("API Running");}

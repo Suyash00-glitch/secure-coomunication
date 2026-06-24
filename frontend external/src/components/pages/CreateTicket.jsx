@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RESPONSE_OPTIONS } from "../../constants";
 import { apiJson } from "../../api/client";
 
@@ -14,6 +14,23 @@ export default function CreateTicket({ onNavigate, onTicketCreated }) {
   const [expectedResponses, setExpectedResponses] = useState([]);
   const [customResponseInput, setCustomResponseInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [departments, setDepartments] = useState([]);
+
+  useEffect(() => {
+  async function loadDepartments() {
+    try {
+      const { res, data } = await apiJson("/api/departments");
+
+      if (res.ok) {
+        setDepartments(data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  loadDepartments();
+}, []);
 
   function addValue(value) {
     value = value.trim();
@@ -85,14 +102,39 @@ export default function CreateTicket({ onNavigate, onTicketCreated }) {
           <div className="form-row">
             <div>
               <label className="form-label">Department <span style={{ color: "#ef4444" }}>*</span></label>
-              <select className="form-select" id="select-21" value={ticketDept} onChange={e => setTicketDept(e.target.value)}>
-                <option value="select_department">Select Department</option>
-                <option value="finance">Finance</option>
-                <option value="it_support">IT Support</option>
-                <option value="human_resources">Human Resources</option>
-                <option value="legal">Legal</option>
-                <option value="operations">Operations</option>
-              </select>
+              <select
+  className="form-select"
+  id="select-21"
+  value={ticketDept}
+  onChange={e => setTicketDept(e.target.value)}
+>
+  <option value="select_department">Select Department</option>
+
+  {departments.map((dept) => (
+    <option
+      key={dept.department_id}
+      value={dept.department_name}
+    >
+      {dept.department_name}
+    </option>
+  ))}
+</select><select
+  className="form-select"
+  id="select-21"
+  value={ticketDept}
+  onChange={e => setTicketDept(e.target.value)}
+>
+  <option value="select_department">Select Department</option>
+
+  {departments.map((dept) => (
+    <option
+      key={dept.department_id}
+      value={dept.department_name}
+    >
+      {dept.department_name}
+    </option>
+  ))}
+</select>
             </div>
             <div>
               <label className="form-label">Priority <span style={{ color: "#ef4444" }}>*</span></label>
