@@ -1,0 +1,66 @@
+/* ── DETAIL LAYOUT ────────────────────────────── */
+.detail-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 13px;
+}
+.info-row:last-child { border-bottom: none; }
+.info-key { color: #6b7280; flex-shrink: 0; margin-right: 16px; }
+
+/* ── TIMELINE ─────────────────────────────────── */
+.timeline { padding-left: 20px; border-left: 2px solid #e5e7eb; }
+.tl-item { position: relative; padding-bottom: 20px; padding-left: 16px; }
+.tl-dot {
+  position: absolute;
+  left: -21px; top: 3px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #1a73e8;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #1a73e8;
+}
+.tl-date { font-size: 11px; color: #9ca3af; margin-bottom: 4px; }
+.tl-text { font-size: 13px; color: #374151; }
+
+/* ── RESPONSE BOX ─────────────────────────────── */
+.response-box {
+  background: #f0f7ff;
+  border-left: 3px solid #1a73e8;
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+}
+.response-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.response-author { font-size: 12px; font-weight: 600; color: #1d4ed8; }
+.response-time { font-size: 11px; color: #6b7280; }
+.response-body { font-size: 13px; line-height: 1.6; color: #374151; }
+
+/* ── FILE CHIPS ───────────────────────────────── */
+.file-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.file-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #374151;
+  background: #f9fafb;
+}
+.file-chip i { font-size: 16px; }
+
+/* ── DEPT ICON CARD ───────────────────────────── */
+.dept-icon-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid #f3f4f6; }
+.dept-icon-row:last-child { border-bottom: none; }
+.dept-icon-box {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 17px;
+}
