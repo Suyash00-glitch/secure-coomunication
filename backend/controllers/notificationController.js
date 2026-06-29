@@ -149,6 +149,67 @@ res.status(500).json({message:
 
 
 
+async function getLatestNotifications(req, res) {
+
+try{
+
+const page = Number(req.query.page) || 1;
+
+const limit = Number(req.query.limit) || 10;
+
+const offset = (page - 1) * limit;
+
+const [rows] = await pool.query(
+
+`
+SELECT
+notification_id,
+title,
+created_at
+FROM notifications
+ORDER BY created_at DESC
+LIMIT ?
+OFFSET ?
+`,
+
+[limit, offset]
+
+);
+
+const [[count]] = await pool.query(
+
+`SELECT COUNT(*) total FROM notifications`
+
+);
+
+res.json({
+
+notifications: rows,
+
+page,
+
+total: count.total,
+
+pages: Math.ceil(count.total / limit)
+
+});
+
+}
+
+catch(err){
+
+console.log(err);
+
+res.status(500).json({message:"server error"});
+
+}
+
+}
+
+
+
+
 module.exports = {
-    createNotification , getNotifications , getNotificationDetail
+    createNotification , getNotifications , getNotificationDetail , 
+    getLatestNotifications
 }

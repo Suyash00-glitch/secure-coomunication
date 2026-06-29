@@ -80,8 +80,7 @@ department_id,
 is_active
 
 from users 
-
-where is_active=true `);
+`);
 
 
 res.json(rows);
@@ -222,8 +221,37 @@ res.status(500).json({message:"server error"});
 }
 
 
+async function activateUser(req,res){
+
+try{
+
+await pool.query(
+
+`
+UPDATE users
+SET
+is_active = true,
+updated_by = ?
+WHERE user_id = ?
+`,
+
+[req.user.user_id, req.params.id]
+
+);
+
+res.json({message:"user activated"});
+
+}
+
+catch(err){
+
+ console.log(err);
+    res.status(500).json({message:err.message});
+
+}
+
+}
 
 
 
-
-module.exports={signup,signin,getUsers,updateUser,deactivateUser,createUser};
+module.exports={signup,signin,getUsers,updateUser,deactivateUser,createUser,activateUser};

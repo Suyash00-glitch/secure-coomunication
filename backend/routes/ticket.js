@@ -10,12 +10,20 @@ const {getTickets} = require ("../controllers/ticketController.js");
 
 const {getTicketDetail} = require ("../controllers/ticketController.js");
 
+const {getOpenTickets} = require ("../controllers/ticketController.js")
+
 ticketRouter.post("/tickets",auth,createTicket);
 
 
 ticketRouter.get("/tickets",auth,getTickets);
 
+ticketRouter.get("/tickets/open",auth,adminOnly,getOpenTickets);
+
 ticketRouter.get("/tickets/:id",auth,getTicketDetail);
+
+
+
+
 
 module.exports={
     ticketRouter : ticketRouter

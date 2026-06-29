@@ -138,7 +138,127 @@ res.status(500).json({message:"Server error"});
 
 
 
+async function getOpenTickets(req,res){
+
+console.log("getOpenTickets called");
+
+
+try{
+
+const page =Number(req.query.page)||1;
+
+const limit =Number(req.query.limit)||10;
+
+const offset =(page-1)*limit;
+
+
+const [rows]=await pool.query(
+
+`
+SELECT
+
+t.ticket_id,
+
+t.ticket_number,
+
+t.title,
+
+t.created_at,
+
+s.status_name
+
+FROM tickets t
+
+JOIN status_master s
+
+ON
+
+t.status_id=s.status_id
+
+WHERE
+
+LOWER(s.status_name)!=
+
+'closed'
+
+ORDER BY
+
+t.created_at
+
+DESC
+
+LIMIT ?
+
+OFFSET ?
+`,
+
+[limit,offset]
+
+);
+
+
+const [[count]]=await pool.query(
+
+`
+SELECT
+
+COUNT(*) total
+
+FROM tickets t
+
+JOIN status_master s
+
+ON
+
+t.status_id=s.status_id
+
+WHERE
+
+LOWER(s.status_name)
+
+!=
+
+'closed'
+`
+
+);
+
+
+console.log(rows);
+console.log(count);
+
+
+res.json({
+
+tickets:
+
+rows,
+
+page,
+
+total:
+
+count.total,
+
+pages:Math.ceil(count.total/limit)
+
+});
+
+}
+
+catch(err){
+
+console.log(err);
+
+res.status(500).json({message:"server error"});
+
+}
+
+};
+
+
+
 
 module.exports={
-    createTicket , getTickets , getTicketDetail
+    createTicket , getTickets , getTicketDetail , getOpenTickets
 }

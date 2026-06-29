@@ -15,6 +15,8 @@ count(*) total
 
 from users
 
+where is_active = TRUE
+
 `
 
 );
