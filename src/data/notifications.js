@@ -1,0 +1,42 @@
+export const notificationList = [
+  {
+    id: "NTF-0031",
+    sender: "Arjun Patel",
+    subject: "System Login Failure — Unable to Access Portal",
+    datetime: "15 Jun 2026, 09:12 AM",
+    priority: "High",
+    status: "Unread",
+  },
+  {
+    id: "NTF-0030",
+    sender: "Meena Krishnan",
+    subject: "Budget Variance Report — June 2026",
+    datetime: "14 Jun 2026, 03:45 PM",
+    priority: "Medium",
+    status: "Acknowledged",
+  },
+  {
+    id: "NTF-0029",
+    sender: "Rajan Mehendale",
+    subject: "Field Operations Delay — Vendor Non-Compliance",
+    datetime: "13 Jun 2026, 11:00 AM",
+    priority: "High",
+    status: "Unread",
+  },
+  {
+    id: "NTF-0028",
+    sender: "Suresh Nair",
+    subject: "Leave Encashment Query",
+    datetime: "12 Jun 2026, 01:20 PM",
+    priority: "Low",
+    status: "Unread",
+  },
+  {
+    id: "NTF-0027",
+    sender: "Kavya Nair",
+    subject: "Contract Amendment Request",
+    datetime: "11 Jun 2026, 10:30 AM",
+    priority: "High",
+    status: "Unread",
+  },
+];
