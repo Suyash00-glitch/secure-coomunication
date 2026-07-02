@@ -1,478 +1,124 @@
-import { useState,useEffect } from "react";
-import Login from "./components/Login.jsx";
-import Sidebar from "./components/Sidebar.jsx";
-import Topbar from "./components/Topbar.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
-import UserMaster from "./pages/UserMaster.jsx";
-import DepartmentMaster from "./pages/DepartmentMaster.jsx";
-import TicketSearch from "./pages/TicketSearch.jsx";
-import NotificationSearch from "./pages/NotificationSearch.jsx";
-import Modal from "./components/Modal.jsx";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./auth/AuthContext";
+import ProtectedRoute from "./auth/ProtectedRoute";
+import Login from "./components/layout/Login";
+import AppLayout from "./components/layout/AppLayout";
+
+// Admin pages
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminUserMaster from "./pages/admin/UserMaster";
+import AdminDepartmentMaster from "./pages/admin/DepartmentMaster";
+import AdminTicketSearch from "./pages/admin/TicketSearch";
+import AdminNotificationSearch from "./pages/admin/NotificationSearch";
+import AdminCreateTicket from "./pages/admin/CreateTicket";
+import AdminCreateNotification from "./pages/admin/CreateNotification";
+
+// External pages
+import ExternalDashboard from "./pages/external/Dashboard";
+import ExternalTicketList from "./pages/external/TicketList";
+import ExternalCreateTicket from "./pages/external/CreateTicket";
+import ExternalTicketDetail from "./pages/external/TicketDetail";
+import ExternalNotificationList from "./pages/external/NotificationList";
+import ExternalCreateNotification from "./pages/external/CreateNotification";
+import ExternalNotificationDetail from "./pages/external/NotificationDetail";
+
+// Internal pages
+import InternalDashboard from "./pages/internal/Dashboard";
+import InternalNotifications from "./pages/internal/Notifications";
+import InternalTickets from "./pages/internal/Tickets";
+import InternalTicketConversation from "./pages/internal/TicketConversation";
+import InternalActivityHistory from "./pages/internal/ActivityHistory";
+import InternalProfile from "./pages/internal/Profile";
 
 export default function App() {
-  
-  const [loggedIn,setLoggedIn]=useState(!!localStorage.getItem("token"));
-  
-  const [showLogout,setShowLogout]=useState(false);
-
-  const [currentPage, setCurrentPage] = useState(
-  localStorage.getItem("currentPage") || "dashboard");
-
-  useEffect(() => {
-  localStorage.setItem("currentPage", currentPage);}, [currentPage]);
-
-
-  const [user, setUser] = useState(null);
-
-  const [users, setUsers] = useState([]);
-  const [departments, setDepartments] = useState([]);
-  const [tickets, setTickets] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-
-
-const [stats,setStats] = useState({
-totalUsers:0,
-totalDepartments:0,
-totalTickets:0,
-openTickets:0,
-closedTickets:0,
-totalNotifications:0
-});
-
-
-useEffect(()=>{
-
-const savedUser =localStorage.getItem("user");
-
-if(savedUser){
-
-setUser(
-
-JSON.parse(savedUser)
-);
-}
-},[]);
-
-
-useEffect(()=>{ console.log("effectran");
-
-if(loggedIn && localStorage.getItem("token"))
-
-{loadDepartments();loadStats();loadUsers();}},[loggedIn]);
-
-
-async function loadDepartments(){
-
-try{
-
-const token =localStorage.getItem("token");
-
-const res =
-await fetch(
-"http://localhost:3000/api/departments",
-{
-headers:{Authorization:`Bearer ${token}`}});
-
-
-const data =await res.json();
-
-if(Array.isArray(data))
-{
-
-setDepartments(data);
-
-}
-
-else{
-
-setDepartments([]);
-
-}
-
-
-
-}
-
-catch(err){
-console.log(err);
-}
-
-}
-
-
-
-async function loadStats(){
-
-try{
-
-const token =localStorage.getItem("token");
-
-const res =await fetch(
-
-"http://localhost:3000/api/dashboard",
-
-{
-
-headers:{Authorization:`Bearer ${token}`}
-
-}
-);
-
-
-const data =await res.json();
-console.log(data);
-setStats(data);
-
-}
-
-catch(err){
-
-console.log(err);
-
-}
-
-}
-
-
-
-async function loadUsers(){
-
-const token =localStorage.getItem("token");
-
-const res =await fetch(
-
-"http://localhost:3000/api/users",
-
-{
-
-headers:{Authorization:`Bearer ${token}`}
-
-});
-
-const data =await res.json();
-
-setUsers(Array.isArray(data) ? data:[]);
-
-}
-
-
-
-
-
-async function handleLogin(username,password){
-
-const res =await fetch(
-
-"http://localhost:3000/api/signin",
-
-{
-
-method:"POST",
-
-headers:{
-
-"Content-Type":"application/json"
-
-},
-
-body:JSON.stringify({username,password})
-
-}
-
-);
-
-const data =await res.json();
-
-
-if(data.token){
-
-localStorage.setItem("token",data.token);
-
-localStorage.setItem("user",JSON.stringify({name:username}));
-
-
-setUser({name:username});
-
-setLoggedIn(true);
-
-}
-
-else{
-
-alert("login failed");
-
-}
-
-}
-
-
-
-
-function handleLogout(){
-
-localStorage.removeItem(
-"token"
-);
-
-localStorage.removeItem(
-"user"
-);
-
-setShowLogout(
-false
-);
-
-setUser(
-null
-);
-
-setCurrentPage(
-"dashboard"
-);
-
-setLoggedIn(
-false
-);
-
-}
-
-  
-async function addUser(data){
-
-const token =localStorage.getItem("token");
-
-await fetch(
-
-"http://localhost:3000/api/users",
-
-{
-
-method:
-
-"POST",
-
-headers:{
-
-Authorization:`Bearer ${token}`,
-
-"Content-Type":
-
-"application/json"
-
-},
-
-body:
-
-JSON.stringify({
-
-username:
-
-data.username,
-
-role:
-
-data.role,
-
-department_id:
-
-data.department_id})
-
-});
-
-
-loadUsers();
-
-}
-
-
-
-  async function updateUser( id, data ){
-     const token = localStorage.getItem( "token" );
-      await fetch( `http://localhost:3000/api/users/${id}`, {
-         method: "PUT", 
-         headers:{ Authorization: `Bearer ${token}`, 
-         "Content-Type": "application/json" }
-         , body: JSON.stringify( data ) } ); loadUsers(); 
-        
-  }
-
- 
-async function deleteUser(id){
-
-const token =localStorage.getItem("token");
-
-await fetch(
-
-`http://localhost:3000/api/users/${id}/deactivate`,
-
-{
-
-method:
-
-"PATCH",
-
-headers:{Authorization:`Bearer ${token}`}}
-
-);
-
-loadUsers();
-
-}
-
-
-
-
-async function activateUser(id){
-console.log("Activating", id);
-const token = localStorage.getItem("token");
-
-await fetch(
-
-`http://localhost:3000/api/users/${id}/activate`,
-
-{
-
-method:"PATCH",
-
-headers:{
-Authorization:`Bearer ${token}`
-}
-
-}
-
-);
-
-loadUsers();
-
-}
-
-
-
-
-
-
-  // ── Department handlers (replace with API calls) ──
-
-async function addDepartment(data){
-
-const token =localStorage.getItem("token");
-
-await fetch(
-
-"http://localhost:3000/api/departments",
-
-{
-
-method:"POST",
-
-headers:{
-
-"Content-Type":"application/json",
-
-Authorization: `Bearer ${token}`
-
-},
-
-body:
-
-JSON.stringify({
-
-department_name:data.name
-,secure_area_flag: data.secure_area_flag,
-status:data.status.toUpperCase()})
-
-});
-
-
-loadDepartments();
-
-}
-
-
-  function updateDepartment(id, data) {
-    setDepartments(prev => prev.map(d => d.department_id === id ? { ...d, ...data } : d));
-  }
-
-  function deleteDepartment(id) {
-    setDepartments(prev => prev.filter(d => d.department_id !== id));
-  }
-
- 
-
-  if (!loggedIn) {
-    return <Login onLogin={handleLogin} />;
-  }
-
-  function renderPage() {
-    switch (currentPage) {
-      case "dashboard":
-        return <Dashboard stats={stats} />;
-      case "user-master":
-        return (
-         <UserMaster
-  users={users}
-  departments={departments}
-  onAdd={addUser}
-  onUpdate={updateUser}
-  onDelete={deleteUser}
-  onActivate={activateUser}
-/>
-        );
-      case "dept-master":
-        return (
-          <DepartmentMaster
-            departments={departments}
-            users={users}
-            onAdd={addDepartment}
-            onUpdate={updateDepartment}
-            onDelete={deleteDepartment}
-          />
-        );
-      case "ticket-search":
-        return <TicketSearch />;
-      case "notif-search":
-        return <NotificationSearch notifications={notifications} />;
-      default:
-        return <Dashboard stats={stats} />;
-    }
-  }
+  const { isAuthenticated, role } = useAuth();
+
+  // If authenticated and hitting /login or /, redirect to role dashboard
+  const roleDashboards = {
+    admin: "/admin/dashboard",
+    outside: "/external/dashboard",
+    secure: "/internal/dashboard",
+  };
 
   return (
-    <div className="app">
-      <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} />
-      <div className="main">
-        <Topbar currentPage={currentPage} user={user} onLogout={()=>setShowLogout(true)} />
-        <div className="content">
-          {renderPage()}
-        </div>
-        
+    <Routes>
+      <Route
+        path="/login"
+        element={
+          isAuthenticated ? (
+            <Navigate to={roleDashboards[role] || "/login"} replace />
+          ) : (
+            <Login />
+          )
+        }
+      />
 
+      {/* Admin routes */}
+      <Route
+        path="/admin/*"
+        element={
+          <ProtectedRoute role="admin">
+            <AppLayout role="admin" />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="users" element={<AdminUserMaster />} />
+        <Route path="departments" element={<AdminDepartmentMaster />} />
+        <Route path="tickets" element={<AdminTicketSearch />} />
+        <Route path="tickets/create" element={<AdminCreateTicket />} />
+        <Route path="notifications" element={<AdminNotificationSearch />} />
+        <Route path="notifications/create" element={<AdminCreateNotification />} />
+      </Route>
 
-{
+      {/* External routes */}
+      <Route
+        path="/external/*"
+        element={
+          <ProtectedRoute role="outside">
+            <AppLayout role="outside" />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="dashboard" element={<ExternalDashboard />} />
+        <Route path="tickets" element={<ExternalTicketList />} />
+        <Route path="tickets/create" element={<ExternalCreateTicket />} />
+        <Route path="tickets/:id" element={<ExternalTicketDetail />} />
+        <Route path="notifications" element={<ExternalNotificationList />} />
+        <Route path="notifications/create" element={<ExternalCreateNotification />} />
+        <Route path="notifications/:id" element={<ExternalNotificationDetail />} />
+      </Route>
 
-showLogout
+      {/* Internal routes */}
+      <Route
+        path="/internal/*"
+        element={
+          <ProtectedRoute role="secure">
+            <AppLayout role="secure" />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="dashboard" element={<InternalDashboard />} />
+        <Route path="notifications" element={<InternalNotifications />} />
+        <Route path="tickets" element={<InternalTickets />} />
+        <Route path="tickets/:id" element={<InternalTicketConversation />} />
+        <Route path="activity" element={<InternalActivityHistory />} />
+        <Route path="profile" element={<InternalProfile />} />
+      </Route>
 
-&&
+      {/* Default redirect */}
+      <Route
+        path="/"
+        element={
+          isAuthenticated ? (
+            <Navigate to={roleDashboards[role] || "/login"} replace />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
 
-<Modal
-
-title="Logout"
-
-onClose={()=>setShowLogout(false)}
-
-footer={ <>
-
-<button className="btn btn-secondary" onClick={()=>setShowLogout(false)}>Cancel</button>
-
-<button className="btn btn-danger" onClick={()=>{handleLogout();}}>Logout</button></>}>
-
-<p>Are you sure you want to logout?</p>
-
-</Modal>
-
-}
-
-      </div>
-    </div>
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
   );
 }
