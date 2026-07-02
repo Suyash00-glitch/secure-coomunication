@@ -1,0 +1,49 @@
+/* ── INTERNAL PORTAL SPECIFIC STYLES ─────────── */
+
+/* Chat bubbles */
+.chat-left { background: #eef4ff; padding: 12px; border-radius: 10px; margin: 10px 0; width: 70%; }
+.chat-right { background: #e8ffe8; padding: 12px; border-radius: 10px; margin: 10px 0 10px auto; width: 70%; text-align: right; }
+
+/* Send response button */
+.btn-send-response { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: .2s; }
+.btn-send-response:hover { background: #1d4ed8; }
+.btn-send-response:disabled { background: #9ca3af; cursor: not-allowed; }
+
+/* Response options (internal ticket) */
+.response-option { display: block; padding: 14px 18px; margin-bottom: 12px; border: 2px solid #d1d5db; border-radius: 10px; cursor: pointer; transition: .2s; background: white; }
+.response-option:hover { border-color: #2563eb; background: #f8fbff; }
+.selected-response { border-color: #2563eb; background: #eff6ff; }
+.response-content { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 500; }
+
+/* Sidebar footer (internal) */
+.sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+.staff-meta { display: flex; align-items: center; gap: 12px; }
+.staff-avatar-sm { width: 42px; height: 42px; border-radius: 50%; background: #2563eb; display: flex; justify-content: center; align-items: center; font-weight: 700; color: #fff; }
+.staff-name-sm { font-weight: 600; color: #fff; }
+.staff-role-sm { color: #94a3b8; font-size: 13px; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .sidebar { width: 220px; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 900px) {
+  .topbar { padding: 0 16px; }
+  .page-header { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .search-row { flex-direction: column; align-items: stretch; }
+  .filter-select { width: 100%; }
+  .detail-grid { grid-template-columns: 1fr; }
+  .profile-card { flex-direction: column; text-align: center; }
+}
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .content { padding: 18px; }
+  .stat-grid { grid-template-columns: 1fr; }
+  .qa-grid { grid-template-columns: 1fr; }
+  .modal { width: 95%; }
+}

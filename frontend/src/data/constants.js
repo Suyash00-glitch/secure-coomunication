@@ -1,0 +1,46 @@
+export const RESPONSE_OPTIONS = [
+  "Phone Call",
+  "Email Response",
+  "On-site Visit",
+  "Remote Assistance",
+  "Schedule Meeting",
+  "Escalate to Manager",
+  "Provide Documentation",
+  "Issue Resolution",
+];
+
+export const pageNames = {
+  dashboard: "Dashboard",
+  "ticket-list": "Ticket List",
+  "create-ticket": "Create Ticket",
+  "ticket-detail": "Ticket Detail",
+  "notif-list": "Notification List",
+  "create-notif": "Create Notification",
+  "notif-detail": "Notification Detail",
+  "user-master": "User Master",
+  "dept-master": "Department Master",
+  "ticket-search": "Ticket Search",
+  "notif-search": "Notification Search",
+  notifications: "Notifications",
+  tickets: "Tickets",
+  activity: "Activity History",
+  profile: "Profile",
+};
+
+export const pageSections = {
+  dashboard: "Home",
+  "ticket-list": "Tickets",
+  "create-ticket": "Tickets",
+  "ticket-detail": "Tickets",
+  "notif-list": "Notifications",
+  "create-notif": "Notifications",
+  "notif-detail": "Notifications",
+  "user-master": "Administration",
+  "dept-master": "Administration",
+  "ticket-search": "Search",
+  "notif-search": "Search",
+  notifications: "Inbox",
+  tickets: "Inbox",
+  activity: "Records",
+  profile: "Account",
+};
