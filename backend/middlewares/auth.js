@@ -7,7 +7,6 @@ function auth(req,res,next) {
 
     if(!authHeader){
         return res.status(401).json({msg:"No token provided"});
-
     }
 
     const token = authHeader.split(" ")[1];
@@ -25,24 +24,22 @@ function auth(req,res,next) {
 } 
 
 
-
 function adminOnly(req,res,next){
-
-if(req.user.role !=="admin"){
-
-return res.status(403).json({msg:"admin only"});
-
-}
-
-next();
-
+    if(req.user.role !=="admin"){
+        return res.status(403).json({msg:"admin only"});
+    }
+    next();
 }
 
 
-
-
+function internalOnly(req, res, next) {
+    if (req.user.role !== "secure") {
+        return res.status(403).json({ message: "Access denied" });
+    }
+    next();
+}
 
 
 module.exports = {
-    auth , adminOnly
+    auth , adminOnly , internalOnly
 };

@@ -25,26 +25,47 @@ th {
 td { padding: 11px 12px; border-bottom: 1px solid #f3f4f6; color: #1a1a1a; vertical-align: middle; }
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: #f9fafb; }
+.td-id { font-weight: 700; color: #2563eb; }
+.table-wrap { overflow-x: auto; }
 
 /* ── EMPTY STATE ──────────────────────────────── */
 .empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 48px 24px;
-  color: #9ca3af;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 48px 24px; color: #9ca3af;
 }
 .empty-state i { font-size: 48px; margin-bottom: 16px; color: #d1d5db; }
 .empty-state p { font-size: 14px; color: #6b7280; }
 .empty-state .empty-sub { font-size: 12px; color: #9ca3af; margin-top: 4px; }
 
 /* ── SEARCH RESULT ────────────────────────────── */
-.not-found {
-  text-align: center;
-  padding: 40px;
-  color: #ef4444;
-  font-size: 14px;
-  font-weight: 500;
-}
+.not-found { text-align: center; padding: 40px; color: #ef4444; font-size: 14px; font-weight: 500; }
 .not-found i { font-size: 48px; display: block; margin-bottom: 12px; color: #fca5a5; }
+
+/* ── DEPT CHECKBOXES ─────────────────────────── */
+.dept-checkboxes { display: flex; flex-wrap: wrap; gap: 12px; padding: 8px 0; }
+.dept-check { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; color: #374151; }
+.dept-check input { accent-color: #1a73e8; width: 15px; height: 15px; }
+
+/* ── UPLOAD BOX ──────────────────────────────── */
+.upload-box { border: 2px dashed #d1d5db; border-radius: 8px; padding: 24px; text-align: center; color: #6b7280; font-size: 13px; cursor: pointer; transition: .15s; }
+.upload-box:hover { border-color: #1a73e8; background: #eff6ff; }
+.upload-box i { font-size: 28px; display: block; margin-bottom: 6px; color: #9ca3af; }
+.upload-link { color: #1a73e8; cursor: pointer; }
+
+/* ── FILE CHIPS ──────────────────────────────── */
+.file-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.file-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; color: #374151; background: #f9fafb; }
+.file-chip i { font-size: 16px; }
+
+/* ── EXPECTED RESPONSE SELECTOR ──────────────── */
+.response-options { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.option-item { display: flex; align-items: center; gap: 6px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 16px; padding: 4px 6px 4px 12px; font-size: 13px; }
+.option-item.option-added { opacity: 0.5; }
+.btn-add, .btn-remove, .btn-add-custom { border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-weight: bold; line-height: 1; }
+.btn-add, .btn-add-custom { background: #d6f5d6; color: #1a7d1a; }
+.btn-add:disabled { background: #eee; color: #999; cursor: not-allowed; }
+.btn-remove { background: #fde0e0; color: #c0392b; }
+.custom-input { border: none; background: transparent; outline: none; font-size: 13px; min-width: 140px; }
+.response-selected { margin-top: 10px; }
+.selected-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.selected-item { display: flex; align-items: center; gap: 6px; background: #e8f0fe; border: 1px solid #b3d1ff; border-radius: 16px; padding: 4px 6px 4px 12px; font-size: 13px; }

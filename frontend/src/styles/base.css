@@ -8,6 +8,10 @@ body {
   background: #f4f6f9;
 }
 
+button, input, select, textarea { font-family: inherit; }
+button { cursor: pointer; }
+a { text-decoration: none; }
+
 /* ── BUTTONS ─────────────────────────────────── */
 .btn {
   padding: 9px 20px;
@@ -23,12 +27,14 @@ body {
 }
 .btn-primary { background: #1a73e8; color: #fff; }
 .btn-primary:hover { background: #1557b0; }
-.btn-primary-full { background: #1a73e8; color: #fff; width: 100%; padding: 11px; justify-content: center; }
+.btn-primary-full { background: #1a73e8; color: #fff; width: 100%; padding: 11px; justify-content: center; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; }
 .btn-primary-full:hover { background: #1557b0; }
 .btn-secondary { background: #f3f4f6; color: #1a1a1a; border: 1px solid #d1d5db; }
 .btn-secondary:hover { background: #e5e7eb; }
 .btn-danger { background: #ef4444; color: #fff; }
 .btn-danger:hover { background: #dc2626; }
+.btn-logout { border: none; background: #ef4444; color: white; padding: 8px 16px; border-radius: 8px; font-weight: 600; transition: 0.2s; }
+.btn-logout:hover { background: #dc2626; }
 
 /* ── FORMS ────────────────────────────────────── */
 .form-group { margin-bottom: 16px; }
@@ -82,6 +88,8 @@ body {
 .badge-medium { background: #fef3c7; color: #92400e; }
 .badge-low { background: #dbeafe; color: #1d4ed8; }
 .badge-admin { background: #f3e8ff; color: #6b21a8; }
+.badge-ack { background: #dcfce7; color: #16a34a; }
+.badge-unread { background: #fee2e2; color: #dc2626; }
 
 /* ── ACTION BUTTONS ──────────────────────────── */
 .action-btn {
@@ -111,6 +119,7 @@ body {
   border-radius: 8px;
   font-size: 13px;
   outline: none;
+  background: #fff;
 }
 .search-input:focus { border-color: #1a73e8; }
 .filter-select {
@@ -136,3 +145,15 @@ body {
 }
 .pg-btn:hover { background: #f3f4f6; }
 .pg-btn.active { background: #1a73e8; color: #fff; border-color: #1a73e8; }
+
+/* ── SMALL ACTION BUTTONS (Internal) ─────────── */
+.action-cluster { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-sm { border: none; padding: 7px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.btn-sm:hover { transform: translateY(-1px); }
+.btn-sm-blue { background: #dbeafe; color: #2563eb; }
+.btn-sm-green { background: #dcfce7; color: #16a34a; }
+.btn-sm-orange { background: #ffedd5; color: #ea580c; }
+.btn-sm-red { background: #fee2e2; color: #dc2626; }
+
+/* ── NAV BADGE ───────────────────────────────── */
+.nav-badge { background: #ef4444; color: white; border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 600; }

@@ -1,13 +1,31 @@
 /* ── STAT CARDS ───────────────────────────────── */
-.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
-.stat-card { background: #fff; border-radius: 10px; border: 1px solid #e5e7eb; padding: 16px; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.stat-card { background: #fff; border-radius: 10px; border: 1px solid #e5e7eb; padding: 16px; transition: 0.25s; }
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
+.stat-top { display: flex; justify-content: space-between; align-items: flex-start; }
 .stat-label { font-size: 11px; color: #6b7280; margin-bottom: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; }
 .stat-val { font-size: 26px; font-weight: 600; }
 .stat-sub { font-size: 11px; color: #9ca3af; margin-top: 4px; }
-.stat-icon {
-  float: right;
-  width: 36px; height: 36px;
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-}
+.stat-icon { float: right; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+
+/* ── QUICK ACTIONS ───────────────────────────── */
+.qa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.qa-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 18px 16px; text-align: center; cursor: pointer; transition: all .15s; }
+.qa-card:hover { border-color: #1a73e8; background: #eff6ff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,115,232,0.1); }
+.qa-card i { font-size: 26px; color: #1a73e8; display: block; margin-bottom: 8px; }
+.qa-card span { font-size: 12px; font-weight: 500; color: #374151; }
+.qa-icon { font-size: 28px; }
+
+/* ── ACTIVITY ────────────────────────────────── */
+.activity-item { display: flex; gap: 12px; padding: 11px 0; border-bottom: 1px solid #f3f4f6; }
+.activity-item:last-child { border-bottom: none; }
+.act-icon { width: 32px; height: 32px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; color: #1a73e8; }
+.act-text { font-size: 13px; color: #374151; flex: 1; line-height: 1.5; }
+.act-time { font-size: 11px; color: #9ca3af; margin-top: 3px; }
+
+/* ── PROGRESS BAR ────────────────────────────── */
+.progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.progress-label { font-size: 13px; color: #374151; min-width: 110px; }
+.progress-bar-wrap { flex: 1; height: 8px; background: #f3f4f6; border-radius: 4px; overflow: hidden; margin: 0 10px; }
+.progress-bar-fill { height: 100%; border-radius: 4px; }
+.progress-count { font-size: 12px; font-weight: 600; color: #374151; min-width: 20px; text-align: right; }
