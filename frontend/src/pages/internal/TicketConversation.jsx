@@ -131,7 +131,7 @@ export default function TicketConversation() {
       {!viewOnly && (
         isClosed ? (
           <div className="card" style={{ textAlign: "center", padding: 24, color: "#6b7280" }}>
-            <p style={{ fontWeight: 600 }}>🔒 This ticket is closed. No further responses allowed.</p>
+            <p style={{ fontWeight: 600 }}> This ticket is closed. No further responses allowed.</p>
           </div>
         ) : (
           <div className="card">
