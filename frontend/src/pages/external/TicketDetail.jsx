@@ -12,7 +12,7 @@ export default function TicketDetail() {
   const [loading, setLoading] = useState(true);
   const [replyMessage, setReplyMessage] = useState("");
   const [expectedResponses, setExpectedResponses] = useState([""]);
-  const [showCloseConfirm, setShowCloseConfirm] = useState(false); // ← new
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false); 
 
   useEffect(() => {
     if (!id) return;
@@ -29,7 +29,7 @@ export default function TicketDetail() {
       socket.emit("join-ticket", id);
       const handler = () => { load(); };
       socket.on("ticket-conversation-updated", handler);
-      socket.on("ticket-closed", handler); // ← reload when closed by anyone
+      socket.on("ticket-closed", handler); 
       return () => {
         socket.off("ticket-conversation-updated", handler);
         socket.off("ticket-closed", handler);
@@ -88,7 +88,7 @@ export default function TicketDetail() {
           <div className="page-title">{td.ticket_id ? `Ticket Detail — TKT-${String(td.ticket_id).padStart(4, "0")}` : ""}</div>
           <div className="page-sub">{td.created_at ? `Submitted on ${fmtDate(td.created_at)}` : ""}</div>
         </div>
-        {/* ← close button top right, hidden if already closed */}
+        {}
         {!isClosed && (
           <button
             className="btn btn-danger"
@@ -146,7 +146,7 @@ export default function TicketDetail() {
             )}
           </div>
 
-          {/* ← hide reply box if closed */}
+          
           {isClosed ? (
             <div className="card" style={{ textAlign: "center", padding: 24, color: "#6b7280" }}>
               <p style={{ fontWeight: 600 }}>🔒 This ticket is closed. No further messages allowed.</p>
@@ -193,7 +193,7 @@ export default function TicketDetail() {
         </div>
       </div>
 
-      {/* ← confirmation modal, same style as your logout modal */}
+      
       {showCloseConfirm && (
         <div className="modal-overlay">
           <div className="modal">
