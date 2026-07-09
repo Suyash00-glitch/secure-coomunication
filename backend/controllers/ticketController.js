@@ -671,7 +671,7 @@ async function closeTicket(req, res) {
     const ticketId = req.params.id;
     const userId = req.user.user_id;
 
-    // only the ticket creator can close it
+    
     const [ticket] = await pool.query(
       `SELECT created_by, assigned_department FROM tickets WHERE ticket_id = ?`,
       [ticketId]
@@ -680,7 +680,7 @@ async function closeTicket(req, res) {
     if (ticket.length === 0) return res.status(404).json({ message: "Ticket not found" });
     if (ticket[0].created_by !== userId) return res.status(403).json({ message: "Access denied" });
 
-    // get closed status id
+    
     const [status] = await pool.query(
       `SELECT status_id FROM status_master WHERE LOWER(status_name) = 'closed'`
     );
@@ -693,10 +693,9 @@ async function closeTicket(req, res) {
 
     const io = req.app.get("io");
 
-    // notify internal dept
+
     io.to(`department-${ticket[0].assigned_department}`).emit("ticket-updated", { ticket_id: ticketId });
 
-    // notify anyone in the ticket convo room
     io.to(`ticket-${ticketId}`).emit("ticket-closed", { ticket_id: ticketId });
 
     res.json({ message: "Ticket closed" });
