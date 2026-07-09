@@ -117,6 +117,29 @@ export default function TicketSearch() {
 
 )}
           </div>
+
+          {result.conversation && result.conversation.length > 0 && (
+  <div className="card" style={{ marginTop: 16 }}>
+    <div className="card-header">
+      <span className="card-title">Conversation</span>
+    </div>
+    {result.conversation.map(msg => (
+      <div
+        key={msg.conversation_id}
+        className={msg.sender_type === "external" ? "chat-right" : "chat-left"}
+      >
+        <strong>{msg.username}</strong>
+        <p>{msg.message_text}</p>
+        <div style={{ fontSize: 11, color: "#6b7280" }}>
+          {new Date(msg.created_at).toLocaleString()}
+        </div>
+      </div>
+    ))}
+  </div>
+)}
+
+
+
         </div>
       </div>
     );
