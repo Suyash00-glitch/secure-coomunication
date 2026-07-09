@@ -16,16 +16,16 @@ export default function Tickets() {
   if (!socket) return;
 
   const handler = (data) => {
-    console.log("🎫 ticket event received", data);
+    console.log(" ticket event received", data);
     loadTickets();
   };
 
   socket.on("ticket-updated", handler);
-  socket.on("new-ticket", handler);    // ← add this
+  socket.on("new-ticket", handler); 
 
   return () => {
     socket.off("ticket-updated", handler);
-    socket.off("new-ticket", handler); // ← and this
+    socket.off("new-ticket", handler); 
   };
 }, []);
 
