@@ -13,7 +13,7 @@ export function AuthProvider({ children }) {
   if (stored && token) {
     try {
       setUser(JSON.parse(stored));
-      connectSocket(); // ← add this line
+      connectSocket(); 
     } catch {
       setUser(null);
     }
@@ -27,7 +27,7 @@ export function AuthProvider({ children }) {
       setUser(data.user);
     }
     setToken(data.token);
-    connectSocket(); // ← connects socket after login with valid token
+    connectSocket(); 
   }
 
   function loginAdmin(data) {
@@ -47,7 +47,7 @@ export function AuthProvider({ children }) {
   }
 
   function logout() {
-    disconnectSocket(); // ← disconnects socket on logout
+    disconnectSocket(); 
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
