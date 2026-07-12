@@ -20,8 +20,8 @@ const NAV_CONFIG = {
   ],
   secure: [
     { id: "dashboard", path: "/internal/dashboard", icon: "ti-layout-dashboard", label: "Dashboard" },
-    { id: "notifications", path: "/internal/notifications", icon: "ti-bell", label: "Notifications", section: "Inbox", badge: true },
-    { id: "tickets", path: "/internal/tickets", icon: "ti-ticket", label: "Tickets", badge: true },
+    { id: "notifications", path: "/internal/notifications", icon: "ti-bell", label: "Notifications", section: "Inbox" },
+    { id: "tickets", path: "/internal/tickets", icon: "ti-ticket", label: "Tickets" },
     { id: "activity", path: "/internal/activity", icon: "ti-history", label: "Activity History", section: "Records" },
     { id: "profile", path: "/internal/profile", icon: "ti-user", label: "Profile", section: "Account" },
   ],
@@ -62,7 +62,6 @@ export default function Sidebar() {
               onClick={() => navigate(item.path)}
             >
               <i className={`ti ${item.icon}`}></i> {item.label}
-              {item.badge && <span className="nav-badge">5</span>}
             </div>
           </div>
         ))}

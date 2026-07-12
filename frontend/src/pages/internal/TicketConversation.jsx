@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { apiJson } from "../../api/client";
+import { apiJson, downloadAttachment } from "../../api/client";
 import { getSocket } from "../../socket";
 import { useSearchParams } from "react-router-dom";
 
@@ -13,6 +13,20 @@ export default function TicketConversation() {
   const [selectedResponse, setSelectedResponse] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [searchParams] = useSearchParams();
+
+  const [downloadingId, setDownloadingId] = useState(null);
+  const [downloadError, setDownloadError] = useState("");
+
+  async function handleDownloadAttachment(file) {
+    setDownloadError("");
+    setDownloadingId(file.attachment_id);
+    const result = await downloadAttachment(
+      `/api/tickets/${ticket.ticket_id}/attachments/${file.attachment_id}/download`,
+      file.file_name,
+    );
+    if (!result.ok) setDownloadError(result.message);
+    setDownloadingId(null);
+  }
 
   const viewOnly = searchParams.get("view") === "true";
   const isClosed = ticket?.status_name?.toLowerCase() === "closed";
@@ -105,11 +119,20 @@ export default function TicketConversation() {
         {ticket.attachments && ticket.attachments.length > 0 && (
           <div className="message-box">
             <label>Attachments</label>
+            {downloadError && (
+              <div style={{ color: "#dc2626", fontSize: 12, marginTop: 6 }}>{downloadError}</div>
+            )}
             {ticket.attachments.map(file => (
-              <div key={file.attachment_id} style={{ marginTop: "8px" }}>
-                <a href={`http://localhost:3000/${file.file_location}`} target="_blank" rel="noreferrer">
-                  📎 {file.file_name}
-                </a>
+              <div key={file.attachment_id} style={{ marginTop: "8px", display: "flex", alignItems: "center", gap: 10 }}>
+                <span>📎 {file.file_name}</span>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => handleDownloadAttachment(file)}
+                  disabled={downloadingId === file.attachment_id}
+                >
+                  {downloadingId === file.attachment_id ? "Downloading..." : "Download"}
+                </button>
               </div>
             ))}
           </div>

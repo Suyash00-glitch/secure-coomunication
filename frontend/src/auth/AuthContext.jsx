@@ -4,8 +4,20 @@ import { connectSocket, disconnectSocket } from "../socket";
 
 const AuthContext = createContext(null);
 
+function getStoredUser() {
+  try {
+    const stored = localStorage.getItem("user");
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  // Hydrated synchronously (like getToken already does) so that `role` is
+  // correct on the very first render after a hard refresh, instead of only
+  // becoming available a render later via the effect below.
+  const [user, setUser] = useState(getStoredUser);
   const [token, setToken] = useState(getToken);
 
   useEffect(() => {

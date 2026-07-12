@@ -1,7 +1,7 @@
 const {Router}=require ("express");
 const userRouter=Router();
 const{signup,signin,loginAdmin,loginExternal,loginInternal,forgotPassword,resetPassword,getUsers,updateUser,deactivateUser,
-    createUser,activateUser,getProfile}=require("../controllers/userController.js");
+    createUser,activateUser,getProfile,changeInternalPassword}=require("../controllers/userController.js");
 const {auth, adminOnly , internalOnly} = require("../middlewares/auth.js");
 
 userRouter.post("/signup",signup);
@@ -17,6 +17,7 @@ userRouter.patch("/users/:id/deactivate",auth,adminOnly,deactivateUser);
 userRouter.patch("/users/:id/activate",auth,adminOnly,activateUser);
 userRouter.post("/users",auth,adminOnly,createUser);
 userRouter.get("/internal/profile",auth,internalOnly,getProfile);
+userRouter.patch("/internal/change-password",auth,internalOnly,changeInternalPassword);
 
 module.exports={
     userRouter:userRouter

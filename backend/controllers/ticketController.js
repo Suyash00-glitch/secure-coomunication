@@ -1,4 +1,36 @@
 const pool = require ("../db.js");
+const path = require("path");
+const fs = require("fs");
+
+/**
+ * Mirrors the authorization already enforced by getTicketDetail() (Admin /
+ * External) and getInternalTicketDetail() (Internal), so ticket detail
+ * access and ticket attachment download access can't silently diverge.
+ *
+ * `ticket` must include: created_by, assigned_department, assigned_to.
+ */
+function canAccessTicket(user, ticket) {
+  if (user.role === "admin") {
+    return true;
+  }
+  if (user.role === "outside") {
+    // Same rule as getTicketDetail(): External users only see their own tickets.
+    return ticket.created_by === user.user_id;
+  }
+  if (user.role === "secure") {
+    // Same rule as getInternalTicketDetail(): must be the assigned department,
+    // and if another internal user has already picked up the ticket, it's
+    // off-limits to everyone else in that department.
+    if (ticket.assigned_department !== user.department_id) {
+      return false;
+    }
+    if (ticket.assigned_to && ticket.assigned_to !== user.user_id) {
+      return false;
+    }
+    return true;
+  }
+  return false;
+}
 
 async function createTicket(req,res) {
     console.log("createtickets called");
@@ -708,9 +740,98 @@ async function closeTicket(req, res) {
 
 
 
+/**
+ * GET /api/tickets/:ticketId/attachments/:attachmentId/download
+ *
+ * Requires `auth` only (see routes/ticket.js) — authorization varies by
+ * role, so it's enforced here via canAccessTicket() rather than a single
+ * fixed role middleware. The file path is taken ONLY from the database
+ * row (file_location), never from user input, and the attachment must
+ * belong to the exact ticketId in the URL so a valid attachmentId can't be
+ * paired with an unrelated ticketId to bypass authorization.
+ */
+async function downloadTicketAttachment(req, res) {
+  try {
+    const { ticketId, attachmentId } = req.params;
+
+    const [rows] = await pool.query(
+      `
+      SELECT
+        ta.attachment_id,
+        ta.file_name,
+        ta.file_location,
+        ta.file_type,
+        t.created_by,
+        t.assigned_department,
+        t.assigned_to
+      FROM ticket_attachments ta
+      JOIN tickets t ON t.ticket_id = ta.ticket_id
+      WHERE ta.attachment_id = ? AND ta.ticket_id = ?
+      `,
+      [attachmentId, ticketId],
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Attachment not found" });
+    }
+
+    const attachment = rows[0];
+
+    if (!canAccessTicket(req.user, attachment)) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const uploadsRoot = path.join(__dirname, "..", "uploads");
+    const resolvedPath = path.resolve(
+      path.join(__dirname, ".."),
+      attachment.file_location,
+    );
+
+    // Defense in depth: even though file_location comes from our own DB
+    // (never from the request), make sure it still resolves inside the
+    // uploads directory before touching the filesystem.
+    if (!resolvedPath.startsWith(uploadsRoot + path.sep)) {
+      return res.status(400).json({ message: "Invalid attachment" });
+    }
+
+    if (!fs.existsSync(resolvedPath)) {
+      return res.status(404).json({ message: "File no longer exists" });
+    }
+
+    res.download(resolvedPath, attachment.file_name, (err) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+async function getAdminTickets(req, res) {
+try{
+const [rows] = await pool.query(
+`SELECT t.ticket_id, t.ticket_number, t.title, u.username AS created_by,
+d.department_name, s.status_name, t.created_at, t.updated_at
+FROM tickets t
+LEFT JOIN users u ON u.user_id = t.created_by
+LEFT JOIN departments d ON d.department_id = t.assigned_department
+LEFT JOIN status_master s ON s.status_id = t.status_id
+ORDER BY t.created_at DESC`);
+res.json(rows);
+}
+catch(err){
+console.log(err);
+res.status(500).json({message:"Server error"});
+}
+}
+
+
+
 module.exports={
     createTicket, getTickets, getTicketDetail, getOpenTickets,
     getInternalTickets, getInternalTicketDetail, getTicketResponses,
     respondToTicket, getTicketConversation , uploadAttachment , replyToTicket
-    , acknowledgeTicket , closeTicket
+    , acknowledgeTicket , closeTicket, getAdminTickets, downloadTicketAttachment
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { apiJson } from "../../api/client";
+import { apiJson, downloadAttachment } from "../../api/client";
 
 function fmtDate(d) { return new Date(d).toLocaleDateString(); }
 function fmtDateTime(d) { return new Date(d).toLocaleString(); }
@@ -9,6 +9,20 @@ export default function NotificationDetail() {
   const { id } = useParams();
   const [notifDetail, setNotifDetail] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const [downloadingId, setDownloadingId] = useState(null);
+  const [downloadError, setDownloadError] = useState("");
+
+  async function handleDownloadAttachment(file) {
+    setDownloadError("");
+    setDownloadingId(file.attachment_id);
+    const result = await downloadAttachment(
+      `/api/notifications/${notifDetail.notification_id}/attachments/${file.attachment_id}/download`,
+      file.file_name,
+    );
+    if (!result.ok) setDownloadError(result.message);
+    setDownloadingId(null);
+  }
 
   useEffect(() => {
     if (!id) return;
@@ -94,17 +108,23 @@ export default function NotificationDetail() {
       Attachments
     </div>
 
+    {downloadError && (
+      <div style={{ color: "#dc2626", fontSize: 12, marginBottom: 8 }}>{downloadError}</div>
+    )}
+
     {nd.attachments.map(file => (
 
-      <div key={file.attachment_id} style={{ marginBottom: 8 }}>
+      <div key={file.attachment_id} style={{ marginBottom: 8, display: "flex", alignItems: "center", gap: 10 }}>
 
-        <a
-          href={`http://localhost:3000/${file.file_location}`}
-          target="_blank"
-          rel="noreferrer"
+        <span>📎 {file.file_name}</span>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => handleDownloadAttachment(file)}
+          disabled={downloadingId === file.attachment_id}
         >
-          📎 {file.file_name}
-        </a>
+          {downloadingId === file.attachment_id ? "Downloading..." : "Download"}
+        </button>
 
       </div>
 

@@ -2,6 +2,16 @@ const pool = require("../db.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { jwt_secret } = require("../config.js");
+const { sendNewAccountEmail } = require("../utils/mailer.js");
+
+// Simple RFC-5322-ish format check — good enough to reject obvious typos
+// without pulling in a dependency just for this. Backend validation must
+// not rely solely on the frontend's type="email" check.
+const EMAIL_FORMAT_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function isValidEmail(value) {
+  return typeof value === "string" && EMAIL_FORMAT_REGEX.test(value.trim());
+}
 
 const passwordResetCodes = new Map();
 
@@ -266,19 +276,74 @@ async function deactivateUser(req, res) {
   }
 }
 
+/**
+ * POST /api/users (auth, adminOnly)
+ *
+ * The request additionally carries an `email` field used ONLY to deliver
+ * the new account's credentials via Nodemailer. It is:
+ *   - never included in the INSERT below (existing `users` columns only —
+ *     no schema change, no migration)
+ *   - never written to any other table or file
+ *   - never logged
+ *   - out of scope entirely once this request finishes
+ *
+ * The plaintext `password` is used only to (1) hash it for storage and
+ * (2) include it in the one-time credential email — never persisted or
+ * logged in plaintext, never returned by this or any later endpoint.
+ *
+ * User creation and email delivery are intentionally decoupled: if SMTP
+ * delivery fails, the already-created account is NOT rolled back. The
+ * response's `emailSent` flag tells the Admin which case occurred.
+ */
 async function createUser(req, res) {
   try {
-    const { username, password, role, department_id } = req.body;
+    const { username, password, role, department_id, email } = req.body;
+
     if (!password || !password.trim()) {
       return res.status(400).json({ message: "password is required" });
     }
+
+    if (!email || !email.trim()) {
+      return res.status(400).json({ message: "email is required" });
+    }
+
+    const normalizedEmail = email.trim();
+
+    if (!isValidEmail(normalizedEmail)) {
+      return res.status(400).json({ message: "a valid email address is required" });
+    }
+
     const created_by = req.user.user_id;
     const hashed_password = await bcrypt.hash(password, 10);
+
+    // Existing schema only — `email` is intentionally NOT part of this
+    // INSERT and is not a column on `users`.
     await pool.query(
       `insert into users(username, password, role, department_id, created_by) values(?,?,?,?,?)`,
       [username, hashed_password, role, department_id, created_by],
     );
-    res.json({ message: "user created" });
+
+    let emailSent = false;
+    try {
+      await sendNewAccountEmail({
+        to: normalizedEmail,
+        username,
+        temporaryPassword: password,
+        role,
+      });
+      emailSent = true;
+    } catch (mailErr) {
+      // Safe to log that delivery failed — never log the password or SMTP
+      // credentials, and never surface the raw SMTP error to the client.
+      console.log("createUser: credential email failed to send:", mailErr.message);
+    }
+
+    return res.json({
+      message: emailSent
+        ? "User created successfully and credentials were sent to the user's email address."
+        : "User created successfully, but the credential email could not be sent.",
+      emailSent,
+    });
   } catch (err) {
     res.status(500).json({ message: "server error" });
   }
@@ -328,6 +393,70 @@ WHERE t.assigned_department = ? AND LOWER(sm.status_name) <> 'closed') pending`,
   }
 }
 
+/**
+ * PATCH /api/internal/change-password
+ *
+ * Protected by `auth` + `internalOnly` (see routes/user.js). The user whose
+ * password is changed is always req.user.user_id from the verified JWT —
+ * the request body is never trusted for that. Updates the same
+ * users.password field that loginInternal()/ldapLogin() already checks via
+ * bcrypt.compare(), since Internal auth here is a simulated DB-backed
+ * bcrypt flow rather than a real external LDAP server.
+ */
+async function changeInternalPassword(req, res) {
+  try {
+    const { currentPassword, newPassword, confirmNewPassword } = req.body || {};
+
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      return res
+        .status(400)
+        .json({ message: "New password and confirmation do not match" });
+    }
+
+    const userId = req.user.user_id;
+
+    const [rows] = await pool.query(
+      "select password from users where user_id=?",
+      [userId],
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const currentMatches = await bcrypt.compare(
+      currentPassword,
+      rows[0].password,
+    );
+
+    if (!currentMatches) {
+      return res.status(400).json({ message: "Current password is incorrect" });
+    }
+
+    const sameAsCurrent = await bcrypt.compare(newPassword, rows[0].password);
+    if (sameAsCurrent) {
+      return res.status(400).json({
+        message: "New password must be different from the current password",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await pool.query("update users set password=? where user_id=?", [
+      hashedPassword,
+      userId,
+    ]);
+
+    return res.json({ message: "Password changed successfully" });
+  } catch (err) {
+    return res.status(500).json({ message: "Server error" });
+  }
+}
+
 module.exports = {
   signup,
   signin,
@@ -343,4 +472,5 @@ module.exports = {
   createUser,
   activateUser,
   getProfile,
+  changeInternalPassword,
 };

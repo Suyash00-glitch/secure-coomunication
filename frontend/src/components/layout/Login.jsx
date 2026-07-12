@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
+import { ROLE_DASHBOARDS, PORTAL_LOGIN_TYPES, PORTAL_LOGIN_DISPLAY } from "../../auth/roleConfig";
 
-export default function Login() {
-  const [loginType, setLoginType] = useState("external");
+/**
+ * lockedPortal: optional "admin" | "internal" | "external".
+ * When provided, the portal selector is hidden and loginType is forced to
+ * that portal's loginType (via PORTAL_LOGIN_TYPES). When omitted, this
+ * component behaves exactly as the original unified /login page did.
+ */
+export default function Login({ lockedPortal }) {
+  const [loginType, setLoginType] = useState(lockedPortal || "external");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,13 +26,17 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const roleDashboards = {
-    admin: "/admin/dashboard",
-    outside: "/external/dashboard",
-    secure: "/internal/dashboard",
-  };
+  // When locked to a portal, always use that portal's loginType — never the
+  // (hidden, unusable) loginType state — so the selector can't be reasoned
+  // about as a source of truth here.
+  const effectiveLoginType = lockedPortal
+    ? PORTAL_LOGIN_TYPES[lockedPortal] || lockedPortal
+    : loginType;
 
-  const showForgotPassword = loginType !== "internal";
+  const showForgotPassword = effectiveLoginType !== "internal";
+
+  // Display-only — never used for auth/loginType decisions.
+  const portalDisplay = lockedPortal ? PORTAL_LOGIN_DISPLAY[lockedPortal] : null;
 
   async function handleSignIn(e) {
     e.preventDefault();
@@ -36,7 +47,7 @@ export default function Login() {
       const res = await fetch("/api/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, loginType }),
+        body: JSON.stringify({ username, password, loginType: effectiveLoginType }),
       });
 
       const data = await res.json();
@@ -51,8 +62,8 @@ export default function Login() {
 
       // Redirect based on role from backend response
       const userRole = data.user?.role;
-      if (userRole && roleDashboards[userRole]) {
-        navigate(roleDashboards[userRole]);
+      if (userRole && ROLE_DASHBOARDS[userRole]) {
+        navigate(ROLE_DASHBOARDS[userRole]);
       } else {
         // Fallback: if backend doesn't return role, default to login error
         setError("Unable to determine user role. Contact administrator.");
@@ -141,48 +152,53 @@ export default function Login() {
   return (
     <div id="login-screen">
       <div className="login-wrap">
-        <div className="login-card">
+        <div className={`login-card ${portalDisplay ? portalDisplay.accentClass : ""}`}>
           <div className="login-logo">
             <div className="login-logo-icon">
-              <i className="ti ti-building-bank"></i>
+              <i className={`ti ${portalDisplay ? portalDisplay.icon : "ti-building-bank"}`}></i>
             </div>
-            <h2>SecureComm Portal</h2>
-            <p>Ticket & Notification Management System</p>
+            <h2>Secure Communication</h2>
+            <p>Manipal Technologies Limited</p>
+            {portalDisplay && <div className="login-portal-label">{portalDisplay.label}</div>}
           </div>
 
-          <div className="login-tabs" style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "16px" }}>
-            <button
-              type="button"
-              className={`login-tab ${loginType === "internal" ? "login-tab-active" : ""}`}
-              onClick={() => setLoginType("internal")}
-            >
-              <i className="ti ti-shield-lock"></i> Internal Employee
-            </button>
-            <button
-              type="button"
-              className={`login-tab ${loginType === "external" ? "login-tab-active" : ""}`}
-              onClick={() => setLoginType("external")}
-            >
-              <i className="ti ti-user"></i> External User
-            </button>
-            <button
-              type="button"
-              className={`login-tab ${loginType === "admin" ? "login-tab-active" : ""}`}
-              onClick={() => setLoginType("admin")}
-            >
-              <i className="ti ti-key"></i> Administrator
-            </button>
-          </div>
+          {!lockedPortal && (
+            <div className="login-tabs" style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "16px" }}>
+              <button
+                type="button"
+                className={`login-tab ${loginType === "internal" ? "login-tab-active" : ""}`}
+                onClick={() => setLoginType("internal")}
+              >
+                <i className="ti ti-shield-lock"></i> Internal Employee
+              </button>
+              <button
+                type="button"
+                className={`login-tab ${loginType === "external" ? "login-tab-active" : ""}`}
+                onClick={() => setLoginType("external")}
+              >
+                <i className="ti ti-user"></i> External User
+              </button>
+              <button
+                type="button"
+                className={`login-tab ${loginType === "admin" ? "login-tab-active" : ""}`}
+                onClick={() => setLoginType("admin")}
+              >
+                <i className="ti ti-key"></i> Administrator
+              </button>
+            </div>
+          )}
 
           <form onSubmit={handleSignIn}>
-            <div className="form-group">
-              <label className="form-label">Login Type</label>
-              <select className="form-input" value={loginType} onChange={(e) => setLoginType(e.target.value)}>
-                <option value="internal">Internal Employee</option>
-                <option value="external">External User</option>
-                <option value="admin">Administrator</option>
-              </select>
-            </div>
+            {!lockedPortal && (
+              <div className="form-group">
+                <label className="form-label">Login Type</label>
+                <select className="form-input" value={loginType} onChange={(e) => setLoginType(e.target.value)}>
+                  <option value="internal">Internal Employee</option>
+                  <option value="external">External User</option>
+                  <option value="admin">Administrator</option>
+                </select>
+              </div>
+            )}
             <div className="form-group">
               <label className="form-label">Username</label>
               <input
@@ -225,7 +241,7 @@ export default function Login() {
             </button>
           </form>
 
-          {loginType === "internal" ? (
+          {effectiveLoginType === "internal" ? (
             <p style={{ marginTop: "12px", fontSize: "13px", color: "#64748b", textAlign: "center" }}>
               Corporate passwords are managed by the organization's IT department. Please contact IT Support to reset your password.
             </p>

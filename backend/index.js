@@ -8,9 +8,18 @@ const app = express();
 
 const server = http.createServer(app);
 
+// Three-port dev architecture: Admin (5173), Internal (5174), External
+// (5175) are three separate Vite origins that all connect to this same
+// shared Socket.IO server. Only the CORS allowlist changes here — JWT
+// handshake auth, rooms, and all event names/emits/listeners below are
+// untouched.
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:5173",
+        origin: [
+            "http://localhost:5173",
+            "http://localhost:5174",
+            "http://localhost:5175"
+        ],
         methods: ["GET", "POST", "PATCH"]
     }
 });
@@ -66,18 +75,22 @@ const {ticketRouter} =require("./routes/ticket.js");
 const {departmentRouter} =require("./routes/department.js");
 const {dashboardRouter} = require("./routes/dashboard.js");
 const {activityRouter} = require("./routes/activity.js");
-const path = require("path");
 
 
 
 
 // routes
 
-
-
-app.use("/uploads",express.static(path.join(__dirname, "uploads")));
-
-
+// NOTE: the previous public `app.use("/uploads", express.static(...))`
+// route has been removed. It served every uploaded file with no
+// authentication or authorization check at all. All ticket/notification
+// attachment access now goes through the authenticated, authorization-checked
+// download endpoints instead:
+//   GET /api/tickets/:ticketId/attachments/:attachmentId/download
+//   GET /api/notifications/:notificationId/attachments/:attachmentId/download
+// Nothing else in the project referenced the /uploads URL directly (grep
+// confirmed only backend/middlewares/upload.js, which writes files to that
+// folder — it doesn't serve them).
 
 app.use("/api",userRouter);
 app.use("/api",ticketRouter);

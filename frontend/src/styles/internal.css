@@ -47,3 +47,25 @@
   .qa-grid { grid-template-columns: 1fr; }
   .modal { width: 95%; }
 }
+
+/* Change Password (Internal Profile) */
+.change-password-card { margin-top: 20px; }
+.change-password-form { max-width: 360px; }
+.change-password-error {
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+.change-password-success {
+  color: #15803d;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  margin-bottom: 14px;
+}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { apiJson } from "../../api/client";
+import { apiJson, downloadAttachment } from "../../api/client";
 
 
 export default function NotificationModal({
@@ -10,6 +10,19 @@ export default function NotificationModal({
 }) {
   
 const [notification, setNotification] = useState(null);
+const [downloadingId, setDownloadingId] = useState(null);
+const [downloadError, setDownloadError] = useState("");
+
+async function handleDownloadAttachment(file) {
+    setDownloadError("");
+    setDownloadingId(file.attachment_id);
+    const result = await downloadAttachment(
+        `/api/notifications/${selectedNotification.notification_id}/attachments/${file.attachment_id}/download`,
+        file.file_name,
+    );
+    if (!result.ok) setDownloadError(result.message);
+    setDownloadingId(null);
+}
   
 
 useEffect(() => {
@@ -101,17 +114,23 @@ useEffect(() => {
 
         <label>Attachments</label>
 
+        {downloadError && (
+            <div style={{ color: "#dc2626", fontSize: 12, marginTop: 6 }}>{downloadError}</div>
+        )}
+
         {notification.attachments.map(file => (
 
-            <div key={file.attachment_id} style={{ marginTop: 8 }}>
+            <div key={file.attachment_id} style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 10 }}>
 
-                <a
-                    href={`http://localhost:3000/${file.file_location}`}
-                    target="_blank"
-                    rel="noreferrer"
+                <span>📎 {file.file_name}</span>
+                <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => handleDownloadAttachment(file)}
+                    disabled={downloadingId === file.attachment_id}
                 >
-                    📎 {file.file_name}
-                </a>
+                    {downloadingId === file.attachment_id ? "Downloading..." : "Download"}
+                </button>
 
             </div>
 

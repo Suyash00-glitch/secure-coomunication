@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { apiJson } from "../../api/client";
+import { apiJson, downloadAttachment } from "../../api/client";
 import { getSocket } from "../../socket";
 
 function fmtDate(d) { return new Date(d).toLocaleDateString(); }
@@ -13,6 +13,20 @@ export default function TicketDetail() {
   const [replyMessage, setReplyMessage] = useState("");
   const [expectedResponses, setExpectedResponses] = useState([""]);
   const [showCloseConfirm, setShowCloseConfirm] = useState(false); 
+
+  const [downloadingId, setDownloadingId] = useState(null);
+  const [downloadError, setDownloadError] = useState("");
+
+  async function handleDownloadAttachment(file) {
+    setDownloadError("");
+    setDownloadingId(file.attachment_id);
+    const result = await downloadAttachment(
+      `/api/tickets/${ticketDetail.ticket_id}/attachments/${file.attachment_id}/download`,
+      file.file_name,
+    );
+    if (!result.ok) setDownloadError(result.message);
+    setDownloadingId(null);
+  }
 
   useEffect(() => {
     if (!id) return;
@@ -121,10 +135,26 @@ export default function TicketDetail() {
             {td.attachments?.length > 0 && (
               <div style={{ marginTop: 20, paddingTop: 14, borderTop: "1px solid #f3f4f6" }}>
                 <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 10, fontWeight: 500 }}>Attachments</div>
+                {downloadError && (
+                  <div style={{ color: "#dc2626", fontSize: 12, marginBottom: 8 }}>{downloadError}</div>
+                )}
                 {td.attachments.map(file => (
                   <div key={file.attachment_id} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10, padding: "10px 14px", border: "1px solid #e5e7eb", borderRadius: 8, background: "#f9fafb" }}>
                     <i className="ti ti-paperclip" style={{ fontSize: 18 }}></i>
-                    <a href={`http://localhost:3000/${file.file_location}`} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "#2563eb", fontWeight: 500 }}>{file.file_name}</a>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 500, color: "#111827" }}>{file.file_name}</div>
+                      {file.file_type && <div style={{ fontSize: 11, color: "#9ca3af" }}>{file.file_type}</div>}
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => handleDownloadAttachment(file)}
+                      disabled={downloadingId === file.attachment_id}
+                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    >
+                      <i className="ti ti-download"></i>
+                      {downloadingId === file.attachment_id ? "Downloading..." : "Download"}
+                    </button>
                   </div>
                 ))}
               </div>

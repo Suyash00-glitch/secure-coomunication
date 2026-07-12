@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import { apiJson } from "../../api/client";
 import Modal from "../../components/shared/Modal";
 
+// Matches the backend's format check in userController.js (createUser) —
+// good enough to catch obvious typos before the request even goes out.
+const EMAIL_FORMAT_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function UserMaster() {
   const [users, setUsers] = useState([]);
   const [departments, setDepartments] = useState([]);
@@ -10,6 +14,17 @@ export default function UserMaster() {
   const [deptFilter, setDeptFilter] = useState("all_departments");
   const [statusFilter, setStatusFilter] = useState("all_statuses");
   const [modal, setModal] = useState(null);
+
+  // Add User submission state — kept here (rather than in the modal) so a
+  // failed submit (e.g. duplicate username, invalid email) can show its
+  // error without the modal being unmounted/reset.
+  const [addSubmitting, setAddSubmitting] = useState(false);
+  const [addError, setAddError] = useState("");
+
+  // Post-creation notice (email sent / email failed) shown on the page
+  // itself, since the modal is already closed by the time we know the
+  // outcome of credential email delivery.
+  const [notice, setNotice] = useState(null); // { type: "success" | "warning", message }
 
   useEffect(() => {
     loadData();
@@ -49,18 +64,38 @@ export default function UserMaster() {
     return matchSearch && matchRole && matchDept && matchStatus;
   });
 
+  // Returns { ok, message, emailSent } rather than throwing, so the modal
+  // can stay open and show a real error instead of silently failing.
+  // `email` is sent to the backend ONLY to be used as the Nodemailer
+  // recipient for this one request — it is not a users table column and
+  // is never persisted.
   async function addUser(data) {
-    await apiJson("/api/users", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: data.username,
-        password: data.password,
-        role: data.role,
-        department_id: data.department_id,
-      }),
-    });
-    loadData();
+    try {
+      const { res, data: respData } = await apiJson("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: data.username,
+          password: data.password,
+          role: data.role,
+          department_id: data.department_id,
+          email: data.email,
+        }),
+      });
+
+      if (res.ok) {
+        loadData();
+      }
+
+      return {
+        ok: res.ok,
+        message: respData?.message,
+        emailSent: respData?.emailSent,
+      };
+    } catch (err) {
+      console.log(err);
+      return { ok: false, message: "Unable to connect to server." };
+    }
   }
 
   async function updateUser(id, data) {
@@ -77,6 +112,32 @@ export default function UserMaster() {
     loadData();
   }
 
+  async function handleAddUserSubmit(data) {
+    if (addSubmitting) return; // guard against duplicate submissions
+
+    setAddSubmitting(true);
+    setAddError("");
+
+    const result = await addUser(data);
+
+    setAddSubmitting(false);
+
+    if (!result.ok) {
+      setAddError(result.message || "Unable to create user.");
+      return; // keep the modal open so the admin can correct the input
+    }
+
+    setModal(null);
+    setNotice({
+      type: result.emailSent ? "success" : "warning",
+      message:
+        result.message ||
+        (result.emailSent
+          ? "User created successfully. Login credentials were sent to the user's email address."
+          : "User was created successfully, but the credential email could not be delivered. Please verify the email address or email configuration."),
+    });
+  }
+
   return (
     <div>
       <div className="page-header">
@@ -84,10 +145,44 @@ export default function UserMaster() {
           <div className="page-title">User Master</div>
           <div className="page-sub">Manage users</div>
         </div>
-        <button className="btn btn-primary" onClick={() => setModal("add")}>
+        <button
+          className="btn btn-primary"
+          onClick={() => {
+            setAddError("");
+            setModal("add");
+          }}
+        >
           Add User
         </button>
       </div>
+
+      {notice && (
+        <div
+          className={notice.type === "success" ? "alert alert-success" : "alert alert-warning"}
+          style={{
+            marginBottom: 16,
+            padding: "10px 14px",
+            borderRadius: 8,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            background: notice.type === "success" ? "#f0fdf4" : "#fffbeb",
+            color: notice.type === "success" ? "#166534" : "#92400e",
+            border: `1px solid ${notice.type === "success" ? "#bbf7d0" : "#fde68a"}`,
+          }}
+        >
+          <span>{notice.message}</span>
+          <button
+            type="button"
+            onClick={() => setNotice(null)}
+            style={{ background: "none", border: "none", cursor: "pointer", color: "inherit", fontSize: 16, lineHeight: 1 }}
+            aria-label="Dismiss"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       <div className="card">
         <div className="search-row">
           <input
@@ -179,11 +274,10 @@ export default function UserMaster() {
         <UserFormModal
           title="Add User"
           departments={departments}
+          submitting={addSubmitting}
+          error={addError}
           onClose={() => setModal(null)}
-          onSubmit={(data) => {
-            addUser(data);
-            setModal(null);
-          }}
+          onSubmit={handleAddUserSubmit}
         />
       )}
       {modal?.mode === "edit" && (
@@ -231,24 +325,46 @@ export default function UserMaster() {
   );
 }
 
-function UserFormModal({ title, departments, initial, onClose, onSubmit }) {
+function UserFormModal({ title, departments, initial, submitting, error, onClose, onSubmit }) {
   const [username, setUsername] = useState(initial?.username || "");
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [department, setDepartment] = useState(initial?.department_id || "");
   const [role, setRole] = useState(initial?.role || "");
   const [status, setStatus] = useState(
     initial ? (initial.is_active ? "Active" : "Inactive") : "Active",
   );
 
+  const isSubmitting = !!submitting;
+
   function handleSubmit(e) {
     e.preventDefault();
+
+    if (isSubmitting) return; // guard against duplicate submissions
+
     if (!initial && !password.trim()) {
       alert("Please create a password for the new user.");
       return;
     }
+
+    if (!initial) {
+      const trimmedEmail = email.trim();
+      if (!trimmedEmail) {
+        setEmailError("Email address is required.");
+        return;
+      }
+      if (!EMAIL_FORMAT_REGEX.test(trimmedEmail)) {
+        setEmailError("Enter a valid email address.");
+        return;
+      }
+      setEmailError("");
+    }
+
     onSubmit({
       username,
       password: password.trim(),
+      email: email.trim(),
       department_id: Number(department),
       role,
       is_active: status === "Active",
@@ -261,16 +377,27 @@ function UserFormModal({ title, departments, initial, onClose, onSubmit }) {
       onClose={onClose}
       footer={
         <>
-          <button className="btn btn-secondary" onClick={onClose}>
+          <button className="btn btn-secondary" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </button>
-          <button className="btn btn-primary" onClick={handleSubmit}>
-            {initial ? "Update" : "Add"}
+          <button className="btn btn-primary" onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : initial ? "Update" : "Add"}
           </button>
         </>
       }
     >
       <form onSubmit={handleSubmit}>
+        {error && (
+          <div
+            style={{
+              color: "#dc2626",
+              marginBottom: "12px",
+              fontSize: "13px",
+            }}
+          >
+            {error}
+          </div>
+        )}
         <div className="form-full">
           <label className="form-label">Username</label>
           <input
@@ -289,6 +416,30 @@ function UserFormModal({ title, departments, initial, onClose, onSubmit }) {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+          </div>
+        )}
+        {!initial && (
+          <div className="form-full">
+            <label className="form-label">Email Address</label>
+            <input
+              className="form-input"
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (emailError) setEmailError("");
+              }}
+              placeholder="user@example.com"
+              required
+            />
+            <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}>
+              Used once to send the username and temporary password. Not stored.
+            </div>
+            {emailError && (
+              <div style={{ color: "#dc2626", fontSize: "13px", marginTop: "4px" }}>
+                {emailError}
+              </div>
+            )}
           </div>
         )}
         <div className="form-full">

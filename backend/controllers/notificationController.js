@@ -1,4 +1,36 @@
 const pool = require ("../db.js");
+const path = require("path");
+const fs = require("fs");
+
+/**
+ * Admin/External rule mirrors getNotificationDetail(): Admin sees any
+ * notification, External only ones they created themselves.
+ */
+function canAccessNotificationAsAdminOrExternal(user, notification) {
+  if (user.role === "admin") {
+    return true;
+  }
+  if (user.role === "outside") {
+    return notification.created_by === user.user_id;
+  }
+  return false;
+}
+
+/**
+ * Internal rule: a notification is visible to an Internal user only if it
+ * was addressed to that user's department, i.e. a row exists in
+ * notification_master for (notificationId, department_id). This is the
+ * same scoping already used by getInternalNotifications() (the list view)
+ * and acknowledgeNotification() — getInternalNotificationDetail() is fixed
+ * below to use it too.
+ */
+async function isNotificationInDepartment(notificationId, departmentId) {
+  const [rows] = await pool.query(
+    `SELECT 1 FROM notification_master WHERE notification_id = ? AND department_id = ? LIMIT 1`,
+    [notificationId, departmentId],
+  );
+  return rows.length > 0;
+}
 
 async function createNotification(req,res) {
 
@@ -213,6 +245,18 @@ async function getInternalNotificationDetail(req, res) {
     try {
 
         const notificationId = req.params.id;
+        const departmentId = req.user.department_id;
+
+        // Must be addressed to this Internal user's department — same rule
+        // getInternalNotifications() already uses for the list view.
+        // Checked before the row is even fetched so a valid-but-foreign
+        // notification ID can't be distinguished from a nonexistent one.
+        const authorized = await isNotificationInDepartment(notificationId, departmentId);
+        if (!authorized) {
+            return res.status(404).json({
+                message: "Notification not found"
+            });
+        }
 
         const [rows] = await pool.query(
             `
@@ -434,9 +478,140 @@ async function uploadNotificationAttachment(req, res) {
 
 
 
+async function getAdminNotifications(req, res) {
+try{
+const [rows] = await pool.query(
+`SELECT
+n.notification_id,
+n.title,
+u.username AS created_by,
+n.created_at,
+GROUP_CONCAT(DISTINCT d.department_name SEPARATOR ', ') AS departments,
+COUNT(DISTINCT nm.department_id) AS total_department_count,
+COALESCE(SUM(CASE WHEN nm.is_acknowledged = TRUE THEN 1 ELSE 0 END), 0) AS acknowledged_department_count
+FROM notifications n
+LEFT JOIN users u ON u.user_id = n.created_by
+LEFT JOIN notification_master nm ON nm.notification_id = n.notification_id
+LEFT JOIN departments d ON d.department_id = nm.department_id
+GROUP BY n.notification_id
+ORDER BY n.created_at DESC`);
+
+const result = rows.map(r => {
+    const total = Number(r.total_department_count) || 0;
+    const acknowledged = Number(r.acknowledged_department_count) || 0;
+
+    // Derived, Admin-facing only — not a new DB status, and not stored
+    // anywhere. A notification with zero recipient departments is not
+    // "Fully Acknowledged" just because 0 === 0 — fall back to
+    // Unacknowledged, matching the existing model's default state.
+    let acknowledgement_status = "Unacknowledged";
+    if (total > 0 && acknowledged > 0) {
+        acknowledgement_status =
+            acknowledged >= total ? "Fully Acknowledged" : "Partially Acknowledged";
+    }
+
+    return {
+        notification_id: r.notification_id,
+        title: r.title,
+        created_by: r.created_by,
+        created_at: r.created_at,
+        departments: r.departments ? r.departments.split(", ") : [],
+        total_department_count: total,
+        acknowledged_department_count: acknowledged,
+        acknowledgement_status,
+    };
+});
+
+res.json(result);
+}
+catch(err){
+console.log(err);
+res.status(500).json({message:"Server error"});
+}
+}
+
+
+
+
+/**
+ * GET /api/notifications/:notificationId/attachments/:attachmentId/download
+ *
+ * Requires `auth` only (see routes/notification.js) — authorization varies
+ * by role, enforced here rather than a single fixed role middleware. The
+ * file path comes ONLY from the database row (file_location), never from
+ * user input, and the attachment must belong to the exact notificationId
+ * in the URL so a valid attachmentId can't be paired with an unrelated
+ * notificationId to bypass authorization.
+ */
+async function downloadNotificationAttachment(req, res) {
+  try {
+    const { notificationId, attachmentId } = req.params;
+
+    const [rows] = await pool.query(
+      `
+      SELECT
+        na.attachment_id,
+        na.file_name,
+        na.file_location,
+        na.file_type,
+        n.created_by
+      FROM notification_attachments na
+      JOIN notifications n ON n.notification_id = na.notification_id
+      WHERE na.attachment_id = ? AND na.notification_id = ?
+      `,
+      [attachmentId, notificationId],
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Attachment not found" });
+    }
+
+    const attachment = rows[0];
+
+    let authorized = canAccessNotificationAsAdminOrExternal(req.user, attachment);
+    if (!authorized && req.user.role === "secure") {
+      authorized = await isNotificationInDepartment(
+        notificationId,
+        req.user.department_id,
+      );
+    }
+
+    if (!authorized) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const uploadsRoot = path.join(__dirname, "..", "uploads");
+    const resolvedPath = path.resolve(
+      path.join(__dirname, ".."),
+      attachment.file_location,
+    );
+
+    // Defense in depth: even though file_location comes from our own DB
+    // (never from the request), make sure it still resolves inside the
+    // uploads directory before touching the filesystem.
+    if (!resolvedPath.startsWith(uploadsRoot + path.sep)) {
+      return res.status(400).json({ message: "Invalid attachment" });
+    }
+
+    if (!fs.existsSync(resolvedPath)) {
+      return res.status(404).json({ message: "File no longer exists" });
+    }
+
+    res.download(resolvedPath, attachment.file_name, (err) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
 module.exports = {
     createNotification, getNotifications, getNotificationDetail,
     getLatestNotifications, getInternalNotificationDetail,
     getInternalNotifications, acknowledgeNotification ,
-     uploadNotificationAttachment
+     uploadNotificationAttachment, getAdminNotifications,
+     downloadNotificationAttachment
 }

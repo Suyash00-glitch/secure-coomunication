@@ -5,7 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:admin": "vite --mode admin --port 5173",
+    "dev:internal": "vite --mode internal --port 5174",
+    "dev:external": "vite --mode external --port 5175",
     "build": "vite build",
+    "build:admin": "vite build --mode admin",
+    "build:internal": "vite build --mode internal",
+    "build:external": "vite build --mode external",
     "preview": "vite preview"
   },
   "dependencies": {
