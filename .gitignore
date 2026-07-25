@@ -1,0 +1,20 @@
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# Backend
+backend/node_modules/
+backend/.env
+
+# VS Code
+.vscode/
+frontend/.vscode/
+backend/.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+backend/uploads/*
+!backend/uploads/.gitkeep
