@@ -10,6 +10,7 @@ const NAV_CONFIG = {
     { id: "create-ticket", path: "/admin/tickets/create", icon: "ti-plus", label: "Create Ticket" },
     { id: "notif-search", path: "/admin/notifications", icon: "ti-bell", label: "Notification Search" },
     { id: "create-notif", path: "/admin/notifications/create", icon: "ti-send", label: "Create Notification" },
+    { id: "profile", path: "/admin/profile", icon: "ti-user", label: "Profile", section: "Account" },
   ],
   outside: [
     { id: "dashboard", path: "/external/dashboard", icon: "ti-layout-dashboard", label: "Dashboard" },
@@ -17,6 +18,7 @@ const NAV_CONFIG = {
     { id: "create-ticket", path: "/external/tickets/create", icon: "ti-plus", label: "Create Ticket" },
     { id: "notif-list", path: "/external/notifications", icon: "ti-bell", label: "Notification List", section: "Notifications" },
     { id: "create-notif", path: "/external/notifications/create", icon: "ti-send", label: "Create Notification" },
+    { id: "profile", path: "/external/profile", icon: "ti-user", label: "Profile", section: "Account" },
   ],
   secure: [
     { id: "dashboard", path: "/internal/dashboard", icon: "ti-layout-dashboard", label: "Dashboard" },

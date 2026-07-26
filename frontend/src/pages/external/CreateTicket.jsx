@@ -15,6 +15,7 @@ export default function CreateTicket() {
   const [submitting, setSubmitting] = useState(false);
   const [departments, setDepartments] = useState([]);
   const [attachment, setAttachment] = useState(null);
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   const { role } = useAuth();
   const prefix = ROLE_PREFIX[role] || "/external";
@@ -45,6 +46,12 @@ export default function CreateTicket() {
   }
 
   async function createTick() {
+    const nextErrors = {};
+    if (!ticketTitle.trim()) nextErrors.title = "Ticket subject is required.";
+    if (!ticketDescription.trim()) nextErrors.description = "Description is required.";
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return; // don't call the API until validation passes
+
     setSubmitting(true);
     try {
       const { res, data } = await apiJson("/api/tickets", {
@@ -93,6 +100,7 @@ export default function CreateTicket() {
         setTicketDescription("");
         setExpectedResponses([]);
         setCustomResponseInput("");
+        setErrors({});
         alert("Ticket created successfully.");
         navigate(`${prefix}/tickets`);
       }
@@ -112,6 +120,7 @@ export default function CreateTicket() {
       setTicketDescription("");
       setExpectedResponses([]);
       setCustomResponseInput("");
+      setErrors({});
       navigate(`${prefix}/dashboard`);
     }
   }
@@ -121,11 +130,15 @@ export default function CreateTicket() {
       <form onSubmit={e => e.preventDefault()}>
         <div className="page-header">
           <div><div className="page-title">Create New Ticket</div><div className="page-sub">Submit a request to the relevant department</div></div>
+          <button type="button" className="btn btn-secondary" onClick={() => navigate(`${prefix}/tickets`)}>
+            <i className="ti ti-arrow-left"></i> Back
+          </button>
         </div>
         <div className="card" style={{ maxWidth: 780 }}>
           <div className="form-full">
             <label className="form-label">Ticket Subject <span style={{ color: "#ef4444" }}>*</span></label>
-            <input className="form-input" placeholder="Brief description of your issue..." type="text" value={ticketTitle} onChange={e => setTicketTitle(e.target.value)} />
+            <input className="form-input" placeholder="Brief description of your issue..." type="text" value={ticketTitle} onChange={e => { setTicketTitle(e.target.value); if (errors.title) setErrors(prev => ({ ...prev, title: undefined })); }} />
+            {errors.title && <div style={{ color: "#dc2626", fontSize: 13, marginTop: 4 }}>{errors.title}</div>}
           </div>
           <div className="form-row">
             <div>
@@ -140,7 +153,8 @@ export default function CreateTicket() {
           </div>
           <div className="form-full">
             <label className="form-label">Description <span style={{ color: "#ef4444" }}>*</span></label>
-            <textarea className="form-textarea" placeholder="Describe the issue in detail..." value={ticketDescription} onChange={e => setTicketDescription(e.target.value)}></textarea>
+            <textarea className="form-textarea" placeholder="Describe the issue in detail..." value={ticketDescription} onChange={e => { setTicketDescription(e.target.value); if (errors.description) setErrors(prev => ({ ...prev, description: undefined })); }}></textarea>
+            {errors.description && <div style={{ color: "#dc2626", fontSize: 13, marginTop: 4 }}>{errors.description}</div>}
           </div>
           <div className="form-full">
             <label className="form-label">Expected Response / Action Required</label>

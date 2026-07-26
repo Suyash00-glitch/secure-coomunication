@@ -6,7 +6,8 @@ const {createNotification,getNotifications
     getLatestNotifications , getInternalNotifications
    , getInternalNotificationDetail,
     acknowledgeNotification,uploadNotificationAttachment,
-    getAdminNotifications,downloadNotificationAttachment} = require ("../controllers/notificationController.js");
+    getAdminNotifications,downloadNotificationAttachment ,
+    forwardNotification } = require ("../controllers/notificationController.js");
 const upload = require("../middlewares/upload");
 
 
@@ -24,6 +25,8 @@ notificationRouter.post("/notifications/:notificationId/attachment",auth,
 
 notificationRouter.get("/notifications/:notificationId/attachments/:attachmentId/download",auth,
     downloadNotificationAttachment);
+
+notificationRouter.post("/internal/notifications/:id/forward", auth, internalOnly, forwardNotification);
 
 
 module.exports={

@@ -11,6 +11,7 @@ import AdminTicketSearch from "../pages/admin/TicketSearch";
 import AdminNotificationSearch from "../pages/admin/NotificationSearch";
 import AdminCreateTicket from "../pages/admin/CreateTicket";
 import AdminCreateNotification from "../pages/admin/CreateNotification";
+import AdminProfile from "../pages/admin/Profile";
 
 /**
  * Route tree for the Admin Vite instance (VITE_PORTAL=admin, port 5173).
@@ -52,6 +53,7 @@ export default function AdminRoutes({ portal }) {
           path="notifications/create"
           element={<AdminCreateNotification />}
         />
+        <Route path="profile" element={<AdminProfile />} />
         {/* Unknown /admin/* sub-paths — safe fallback instead of a blank page */}
         <Route path="*" element={<Navigate to="dashboard" replace />} />
       </Route>

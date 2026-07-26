@@ -18,6 +18,7 @@ const PAGE_META = {
     section: "Notifications",
     name: "Create Notification",
   },
+  "/admin/profile": { section: "Account", name: "Profile" },
   // External
   "/external/dashboard": { section: "Home", name: "Dashboard" },
   "/external/tickets": { section: "Tickets", name: "Ticket List" },
@@ -30,6 +31,7 @@ const PAGE_META = {
     section: "Notifications",
     name: "Create Notification",
   },
+  "/external/profile": { section: "Account", name: "Profile" },
   // Internal
   "/internal/dashboard": { section: "Home", name: "Dashboard" },
   "/internal/notifications": { section: "Inbox", name: "Notifications" },
@@ -48,9 +50,9 @@ export default function Topbar() {
     if (role === "secure") {
       navigate("/internal/profile");
     } else if (role === "outside") {
-      navigate("/external/dashboard");
+      navigate("/external/profile");
     } else if (role === "admin") {
-      navigate("/admin/dashboard");
+      navigate("/admin/profile");
     }
   };
 

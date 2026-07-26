@@ -11,6 +11,7 @@ import ExternalTicketDetail from "../pages/external/TicketDetail";
 import ExternalNotificationList from "../pages/external/NotificationList";
 import ExternalCreateNotification from "../pages/external/CreateNotification";
 import ExternalNotificationDetail from "../pages/external/NotificationDetail";
+import ExternalProfile from "../pages/external/Profile";
 
 /**
  * Route tree for the External Vite instance (VITE_PORTAL=external, port 5175).
@@ -55,6 +56,7 @@ export default function ExternalRoutes({ portal }) {
           path="notifications/:id"
           element={<ExternalNotificationDetail />}
         />
+        <Route path="profile" element={<ExternalProfile />} />
         {/* Unknown /external/* sub-paths — safe fallback instead of a blank page */}
         <Route path="*" element={<Navigate to="dashboard" replace />} />
       </Route>

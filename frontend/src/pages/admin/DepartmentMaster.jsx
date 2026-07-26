@@ -114,9 +114,18 @@ function DeptFormModal({ title, initial, onClose, onSubmit }) {
   const [name, setName] = useState(initial?.department_name || initial?.name || "");
   const [head, setHead] = useState(initial?.head || "");
   const [status, setStatus] = useState(initial?.status || "Active");
+  const [errors, setErrors] = useState({});
 
   function handleSubmit(e) {
     e.preventDefault();
+
+    const nextErrors = {};
+    if (!name.trim()) nextErrors.name = "Department Name is required.";
+    if (!head.trim()) nextErrors.head = "Head Name is required.";
+
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+
     onSubmit({ name, head, status });
   }
 
@@ -127,8 +136,16 @@ function DeptFormModal({ title, initial, onClose, onSubmit }) {
         <button className="btn btn-primary" onClick={handleSubmit}><i className="ti ti-check"></i> {initial ? "Update" : "Add"}</button>
       </>}>
       <form onSubmit={handleSubmit}>
-        <div className="form-full"><label className="form-label">Department Name <span style={{ color: "#ef4444" }}>*</span></label><input className="form-input" type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Finance" required /></div>
-        <div className="form-full"><label className="form-label">Head</label><input className="form-input" type="text" value={head} onChange={e => setHead(e.target.value)} placeholder="Department head name" /></div>
+        <div className="form-full">
+          <label className="form-label">Department Name <span style={{ color: "#ef4444" }}>*</span></label>
+          <input className="form-input" type="text" value={name} onChange={e => { setName(e.target.value); if (errors.name) setErrors(prev => ({ ...prev, name: undefined })); }} placeholder="e.g. Finance" />
+          {errors.name && <div style={{ color: "#dc2626", fontSize: 13, marginTop: 4 }}>{errors.name}</div>}
+        </div>
+        <div className="form-full">
+          <label className="form-label">Head <span style={{ color: "#ef4444" }}>*</span></label>
+          <input className="form-input" type="text" value={head} onChange={e => { setHead(e.target.value); if (errors.head) setErrors(prev => ({ ...prev, head: undefined })); }} placeholder="Department head name" />
+          {errors.head && <div style={{ color: "#dc2626", fontSize: 13, marginTop: 4 }}>{errors.head}</div>}
+        </div>
         <div className="form-full"><label className="form-label">Status</label>
           <select className="form-select" value={status} onChange={e => setStatus(e.target.value)}>
             <option value="Active">Active</option>

@@ -94,6 +94,7 @@ export default function Profile() {
           <div className="info-row"><span className="info-key">Username</span><span>{profile.username}</span></div>
           <div className="info-row"><span className="info-key">Department</span><span>{profile.department_name}</span></div>
           <div className="info-row"><span className="info-key">Role</span><span>{profile.role}</span></div>
+          <div className="info-row"><span className="info-key">User Type</span><span>{profile.auth_type === "ldap" ? "LDAP" : "Local"}</span></div>
         </div>
         <div className="card">
           <div className="card-header"><span className="card-title">My Stats</span></div>

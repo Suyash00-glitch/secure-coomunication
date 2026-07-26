@@ -38,6 +38,17 @@ async function createNotification(req,res) {
     const user_id = req.user.user_id;
     const title = req.body.title;
     const description = req.body.description;
+    const department_names = req.body.department_names;
+
+    if(!title || !String(title).trim()){
+        return res.status(400).json({message:"Title is required"});
+    }
+    if(!description || !String(description).trim()){
+        return res.status(400).json({message:"Description is required"});
+    }
+    if(!Array.isArray(department_names) || department_names.length === 0){
+        return res.status(400).json({message:"At least one department is required"});
+    }
 
     const [result] = await pool.query(
         `INSERT INTO notifications(title,description,created_by)
@@ -45,7 +56,6 @@ async function createNotification(req,res) {
         [title, description, user_id]
     );
 
-    const department_names = req.body.department_names;
     const notificationId = result.insertId;
 
     const io = req.app.get("io");
@@ -631,10 +641,95 @@ async function downloadNotificationAttachment(req, res) {
   }
 }
 
+
+
+
+
+async function forwardNotification(req, res) {
+  try {
+    const notificationId = req.params.id;
+    const departmentId = req.user.department_id;
+    const userId = req.user.user_id;
+
+   
+    const [existing] = await pool.query(
+      `SELECT is_acknowledged FROM notification_master 
+       WHERE notification_id = ? AND department_id = ?`,
+      [notificationId, departmentId]
+    );
+
+    if (existing.length === 0) {
+      return res.status(404).json({ message: "Notification not found" });
+    }
+
+    if (!existing[0].is_acknowledged) {
+      return res.status(403).json({ message: "You must acknowledge before forwarding" });
+    }
+
+    const { department_name } = req.body;
+
+    
+    const [dept] = await pool.query(
+      `SELECT department_id FROM departments WHERE department_name = ?`,
+      [department_name]
+    );
+
+    if (dept.length === 0) {
+      return res.status(404).json({ message: "Department not found" });
+    }
+
+    const targetDeptId = dept[0].department_id;
+
+    
+    const [alreadySent] = await pool.query(
+      `SELECT 1 FROM notification_master 
+       WHERE notification_id = ? AND department_id = ?`,
+      [notificationId, targetDeptId]
+    );
+
+    if (alreadySent.length > 0) {
+      return res.status(400).json({ message: "Already sent to this department" });
+    }
+
+   
+    await pool.query(
+      `INSERT INTO notification_master (notification_id, department_id) VALUES (?, ?)`,
+      [notificationId, targetDeptId]
+    );
+
+   
+    const io = req.app.get("io");
+    io.to(`department-${targetDeptId}`).emit("new-notification", {
+      notification_id: notificationId
+    });
+
+    await logActivity({
+      user_id: userId,
+      department_id: departmentId,
+      action: "Notification Forwarded",
+      item_type: "notification",
+      item_id: notificationId,
+    });
+
+    res.json({ message: "Notification forwarded successfully" });
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+
+
+
+
+
+
+
 module.exports = {
     createNotification, getNotifications, getNotificationDetail,
     getLatestNotifications, getInternalNotificationDetail,
     getInternalNotifications, acknowledgeNotification ,
      uploadNotificationAttachment, getAdminNotifications,
-     downloadNotificationAttachment
+     downloadNotificationAttachment , forwardNotification
 }

@@ -1,7 +1,9 @@
 const pool = require("../db.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { jwt_secret } = require("../config.js");
+
+require("dotenv").config();
+
 const { sendNewAccountEmail } = require("../utils/mailer.js");
 const { logActivity } = require("../services/activityLogService.js");
 
@@ -23,7 +25,7 @@ function buildAuthResponse(res, user) {
       role: String(user.role).toLowerCase(),
       department_id: user.department_id,
     },
-    jwt_secret,
+    process.env.JWT_SECRET,
   );
 
   return res.status(200).json({
@@ -261,13 +263,27 @@ async function updateUser(req, res) {
   try {
     const id = req.params.id;
     const updatedBy = req.user.user_id;
+    const { role, department_id, is_active } = req.body;
+
+    if (!department_id) {
+      return res.status(400).json({ message: "Department is required" });
+    }
+
+    if (!role || !String(role).trim()) {
+      return res.status(400).json({ message: "Role is required" });
+    }
+
+    if (typeof is_active === "undefined" || is_active === null || is_active === "") {
+      return res.status(400).json({ message: "Status is required" });
+    }
+
     await pool.query(
       `update users set username=?, role=?, department_id=?, is_active=?, updated_by=? where user_id=?`,
       [
         req.body.username,
-        req.body.role,
-        req.body.department_id,
-        req.body.is_active,
+        role,
+        department_id,
+        is_active,
         updatedBy,
         id,
       ],
@@ -314,25 +330,70 @@ async function createUser(req, res) {
   try {
     const { username, password, role, department_id, email, auth_type, ldap_user_id } = req.body;
 
+    if (!username || !username.trim()) {
+      return res.status(400).json({ message: "Username is required" });
+    }
+
+    if (/\s/.test(username.trim())) {
+      return res.status(400).json({ message: "Username must not contain spaces" });
+    }
+
     if (!password || !password.trim()) {
-      return res.status(400).json({ message: "password is required" });
+      return res.status(400).json({ message: "Password is required" });
     }
 
     if (!email || !email.trim()) {
-      return res.status(400).json({ message: "email is required" });
+      return res.status(400).json({ message: "Email is required" });
     }
 
     const normalizedEmail = email.trim();
     if (!isValidEmail(normalizedEmail)) {
-      return res.status(400).json({ message: "a valid email address is required" });
+      return res.status(400).json({ message: "A valid email address is required" });
+    }
+
+    if (!department_id) {
+      return res.status(400).json({ message: "Department is required" });
+    }
+
+    if (!role || !String(role).trim()) {
+      return res.status(400).json({ message: "Role is required" });
+    }
+
+    // username duplicate check
+    const [existingUser] = await pool.query(
+      `SELECT user_id FROM users WHERE username = ?`,
+      [username.trim()]
+    );
+    if (existingUser.length > 0) {
+      return res.status(400).json({ message: "Username already exists" });
+    }
+
+    // email duplicate check
+    const [existingEmail] = await pool.query(
+      `SELECT user_id FROM users WHERE email = ?`,
+      [normalizedEmail]
+    );
+    if (existingEmail.length > 0) {
+      return res.status(400).json({ message: "Email already in use" });
+    }
+
+    // ldap_user_id duplicate check
+    if (auth_type === "ldap" && ldap_user_id) {
+      const [existingLdap] = await pool.query(
+        `SELECT user_id FROM users WHERE ldap_user_id = ?`,
+        [ldap_user_id.trim()]
+      );
+      if (existingLdap.length > 0) {
+        return res.status(400).json({ message: "LDAP User ID already in use" });
+      }
     }
 
     const created_by = req.user.user_id;
     const hashed_password = await bcrypt.hash(password, 10);
 
     await pool.query(
-      `INSERT INTO users(username, password, role, department_id, created_by, auth_type, ldap_user_id) VALUES(?,?,?,?,?,?,?)`,
-      [username, hashed_password, role, department_id, created_by, auth_type || "local", ldap_user_id || null]
+      `INSERT INTO users(username, password, email, role, department_id, created_by, auth_type, ldap_user_id) VALUES(?,?,?,?,?,?,?,?)`,
+      [username.trim(), hashed_password, normalizedEmail, role, department_id, created_by, auth_type || "local", ldap_user_id || null]
     );
 
     let emailSent = false;
@@ -356,7 +417,17 @@ async function createUser(req, res) {
     });
 
   } catch (err) {
-    res.status(500).json({ message: "server error" });
+    console.log(err);
+    if (err.code === "ER_DUP_ENTRY") {
+      if (err.message.includes("username")) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+      if (err.message.includes("email")) {
+        return res.status(400).json({ message: "Email already in use" });
+      }
+      return res.status(400).json({ message: "Duplicate entry" });
+    }
+    res.status(500).json({ message: "Server error" }); 
   }
 }
 
@@ -378,7 +449,7 @@ async function getProfile(req, res) {
   try {
     const userId = req.user.user_id;
     const [[user]] = await pool.query(
-      `SELECT u.user_id, u.username, u.name, u.role, u.department_id, d.department_name
+      `SELECT u.user_id, u.username, u.name, u.role, u.department_id, u.auth_type, d.department_name
 FROM users u
 LEFT JOIN departments d ON u.department_id = d.department_id
 WHERE u.user_id = ?`,
@@ -399,6 +470,38 @@ WHERE t.assigned_department = ? AND LOWER(sm.status_name) <> 'closed') pending`,
     );
 
     res.json({ ...user, stats });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: err.message });
+  }
+}
+
+/**
+ * GET /api/profile (auth only — any authenticated role)
+ *
+ * Generic "my own profile" endpoint used by the Admin and External Profile
+ * pages. Unlike getProfile() above (which is Internal-only and also
+ * returns department-scoped stats), this only returns the logged-in
+ * user's own account fields — no stats, no role restriction. Added
+ * specifically so Admin/External can show a Profile page without
+ * granting them access to the Internal-only /api/internal/profile route.
+ */
+async function getMyProfile(req, res) {
+  try {
+    const userId = req.user.user_id;
+    const [[user]] = await pool.query(
+      `SELECT u.user_id, u.username, u.name, u.email, u.role, u.is_active, u.auth_type, u.department_id, d.department_name
+FROM users u
+LEFT JOIN departments d ON u.department_id = d.department_id
+WHERE u.user_id = ?`,
+      [userId],
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: err.message });
@@ -511,6 +614,7 @@ module.exports = {
   createUser,
   activateUser,
   getProfile,
+  getMyProfile,
   changeInternalPassword,
   logoutInternal,
 };

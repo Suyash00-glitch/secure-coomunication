@@ -2,7 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
-const { jwt_secret } = require("./config.js");
+require("dotenv").config();
+
 
 const app = express();
 
@@ -40,7 +41,7 @@ io.on("connection", (socket) => {
 
         const decoded = jwt.verify(
             token,
-            jwt_secret
+                process.env.JWT_SECRET
         );
 
         socket.join(`department-${decoded.department_id}`);
@@ -77,20 +78,6 @@ const {dashboardRouter} = require("./routes/dashboard.js");
 const {activityRouter} = require("./routes/activity.js");
 
 
-
-
-// routes
-
-// NOTE: the previous public `app.use("/uploads", express.static(...))`
-// route has been removed. It served every uploaded file with no
-// authentication or authorization check at all. All ticket/notification
-// attachment access now goes through the authenticated, authorization-checked
-// download endpoints instead:
-//   GET /api/tickets/:ticketId/attachments/:attachmentId/download
-//   GET /api/notifications/:notificationId/attachments/:attachmentId/download
-// Nothing else in the project referenced the /uploads URL directly (grep
-// confirmed only backend/middlewares/upload.js, which writes files to that
-// folder — it doesn't serve them).
 
 app.use("/api",userRouter);
 app.use("/api",ticketRouter);

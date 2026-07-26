@@ -41,6 +41,13 @@ async function createTicket(req,res) {
     const description = req.body.description;
     const response = req.body.expectedResponses;
 
+    if(!title || !String(title).trim()){
+        return res.status(400).json({message:"Title is required"});
+    }
+    if(!description || !String(description).trim()){
+        return res.status(400).json({message:"Description is required"});
+    }
+
     const [dept] = await pool.query(`select department_id from departments where department_name=?`,[department_name]);
     if(dept.length===0){ return res.status(404).json({message:"department not found"}); }
     const department_id = dept[0].department_id;

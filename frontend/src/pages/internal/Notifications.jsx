@@ -20,7 +20,7 @@ export default function Notifications() {
   loadNotifications();
 
   const handler = (data) => {
-    console.log("🔔 received", data);
+    console.log(" received", data);
     loadNotifications();
   };
 
@@ -100,7 +100,9 @@ export default function Notifications() {
                       {n.status === "Unacknowledged" && (
                         <button className="btn-sm btn-sm-green" onClick={() => acknowledgeNotification(n.notification_id)}>Acknowledge</button>
                       )}
-                      <button className="btn-sm btn-sm-orange" onClick={() => { setSelectedNotification(n); setShowForwardModal(true); }}>Forward</button>
+                      {n.status === "Acknowledged" && (  // ← only show Forward if acknowledged
+                         <button className="btn-sm btn-sm-orange" onClick={() => { setSelectedNotification(n); setShowForwardModal(true); }}>Forward</button>
+                         )}
                     </div>
                   </td>
                 </tr>

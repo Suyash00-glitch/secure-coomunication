@@ -12,6 +12,7 @@ export default function CreateNotification() {
   const [notifDeptChecked, setNotifDeptChecked] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [attachment, setAttachment] = useState(null);
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   const { role } = useAuth();
   const prefix = ROLE_PREFIX[role] || "/external";
@@ -36,6 +37,15 @@ export default function CreateNotification() {
   }
 
   async function createNotify() {
+    const nextErrors = {};
+    if (!notifTitle.trim()) nextErrors.title = "Notification title is required.";
+    if (!notifDescription.trim()) nextErrors.description = "Notification description is required.";
+    if (departments.length > 0 && getDepartmentValues().length === 0) {
+      nextErrors.departments = "Select at least one department.";
+    }
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return; // don't call the API until validation passes
+
     setSubmitting(true);
     try {
       const { res, data } = await apiJson("/api/notifications", {
@@ -76,6 +86,7 @@ export default function CreateNotification() {
 
 
       if (res.ok) {
+        setErrors({});
         alert("Notification created");
         navigate(`${prefix}/notifications`);
       } else {
@@ -97,6 +108,7 @@ export default function CreateNotification() {
       const checked = {};
       departments.forEach(d => { checked[d.department_name] = false; });
       setNotifDeptChecked(checked);
+      setErrors({});
       navigate(`${prefix}/dashboard`);
     }
   }
@@ -106,15 +118,20 @@ export default function CreateNotification() {
       <form onSubmit={e => e.preventDefault()}>
         <div className="page-header">
           <div><div className="page-title">Create Notification</div><div className="page-sub">Publish a notification to one or more departments</div></div>
+          <button type="button" className="btn btn-secondary" onClick={() => navigate(`${prefix}/notifications`)}>
+            <i className="ti ti-arrow-left"></i> Back
+          </button>
         </div>
         <div className="card" style={{ maxWidth: 780 }}>
           <div className="form-full">
             <label className="form-label">Notification Title <span style={{ color: "#ef4444" }}>*</span></label>
-            <input className="form-input" placeholder="e.g. Annual Budget Review — Action Required" type="text" value={notifTitle} onChange={e => setNotifTitle(e.target.value)} />
+            <input className="form-input" placeholder="e.g. Annual Budget Review — Action Required" type="text" value={notifTitle} onChange={e => { setNotifTitle(e.target.value); if (errors.title) setErrors(prev => ({ ...prev, title: undefined })); }} />
+            {errors.title && <div style={{ color: "#dc2626", fontSize: 13, marginTop: 4 }}>{errors.title}</div>}
           </div>
           <div className="form-full">
             <label className="form-label">Notification Description <span style={{ color: "#ef4444" }}>*</span></label>
-            <textarea className="form-textarea" placeholder="Provide detailed information about this notification..." style={{ height: 110 }} value={notifDescription} onChange={e => setNotifDescription(e.target.value)}></textarea>
+            <textarea className="form-textarea" placeholder="Provide detailed information about this notification..." style={{ height: 110 }} value={notifDescription} onChange={e => { setNotifDescription(e.target.value); if (errors.description) setErrors(prev => ({ ...prev, description: undefined })); }}></textarea>
+            {errors.description && <div style={{ color: "#dc2626", fontSize: 13, marginTop: 4 }}>{errors.description}</div>}
           </div>
           <div className="form-full">
             <label className="form-label">Select Departments <span style={{ color: "#ef4444" }}>*</span></label>
@@ -123,12 +140,16 @@ export default function CreateNotification() {
                 {departments.map(d => (
                   <label className="dept-check" key={d.department_id}>
                     <input type="checkbox" checked={!!notifDeptChecked[d.department_name]}
-                      onChange={e => setNotifDeptChecked(prev => ({ ...prev, [d.department_name]: e.target.checked }))} />
+                      onChange={e => {
+                        setNotifDeptChecked(prev => ({ ...prev, [d.department_name]: e.target.checked }));
+                        if (errors.departments) setErrors(prev => ({ ...prev, departments: undefined }));
+                      }} />
                     {d.department_name}
                   </label>
                 ))}
               </div>
             </div>
+            {errors.departments && <div style={{ color: "#dc2626", fontSize: 13, marginTop: 4 }}>{errors.departments}</div>}
           </div>
          <div className="form-full">
   <label className="form-label">Attachment</label>

@@ -3,6 +3,11 @@ const pool = require("../db.js");
 async function createDepartment(req,res){
 try{
 const {department_name,secure_area_flag,status}=req.body;
+
+if(!department_name || !String(department_name).trim()){
+  return res.status(400).json({message:"Department name is required"});
+}
+
 await pool.query(
 `insert into departments (department_name , secure_area_flag , status ) values (?,?,?)`,
 [department_name,secure_area_flag,status]);

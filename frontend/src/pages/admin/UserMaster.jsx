@@ -324,30 +324,52 @@ function UserFormModal({ title, departments, initial, submitting, error, onClose
   const [username, setUsername] = useState(initial?.username || "");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [emailError, setEmailError] = useState("");
   const [department, setDepartment] = useState(initial?.department_id || "");
   const [role, setRole] = useState(initial?.role || "");
-  const [status, setStatus] = useState(initial ? (initial.is_active ? "Active" : "Inactive") : "Active");
+  const [status, setStatus] = useState(initial ? (initial.is_active ? "Active" : "Inactive") : "");
   const [authType, setAuthType] = useState(initial?.auth_type || "local");
   const [ldapUserId, setLdapUserId] = useState(initial?.ldap_user_id || "");
+  const [errors, setErrors] = useState({});
 
   const isSubmitting = !!submitting;
   const isLdap = authType === "ldap";
+
+  function clearError(field) {
+    if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }));
+  }
 
   function handleSubmit(e) {
     e.preventDefault();
     if (isSubmitting) return;
 
-    if (!initial && !isLdap && !password.trim()) {
-      alert("Please create a password for the new user.");
-      return;
+    const nextErrors = {};
+
+    if (!initial) {
+      const trimmedUsername = username.trim();
+      if (!trimmedUsername) {
+        nextErrors.username = "Username is required.";
+      } else if (/\s/.test(trimmedUsername)) {
+        nextErrors.username = "Username must not contain spaces.";
+      }
     }
 
     if (!initial) {
       const trimmedEmail = email.trim();
-      if (!trimmedEmail) { setEmailError("Email address is required."); return; }
-      if (!EMAIL_FORMAT_REGEX.test(trimmedEmail)) { setEmailError("Enter a valid email address."); return; }
-      setEmailError("");
+      if (!trimmedEmail) nextErrors.email = "Email address is required.";
+      else if (!EMAIL_FORMAT_REGEX.test(trimmedEmail)) nextErrors.email = "Enter a valid email address.";
+    }
+
+    if (!department) nextErrors.department = "Department is required.";
+    if (!role) nextErrors.role = "Role is required.";
+    if (!status) nextErrors.status = "Status is required.";
+    if (!initial && !authType) nextErrors.authType = "Login type is required.";
+
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return; // don't call the API until validation passes
+
+    if (!initial && !isLdap && !password.trim()) {
+      alert("Please create a password for the new user.");
+      return;
     }
 
     onSubmit({
@@ -383,16 +405,17 @@ function UserFormModal({ title, departments, initial, submitting, error, onClose
   <input
     className="form-input"
     value={username}
-    onChange={(e) => !initial && setUsername(e.target.value)}
+    onChange={(e) => { if (!initial) { setUsername(e.target.value); clearError("username"); } }}
     readOnly={!!initial}
     style={initial ? { background: "#f3f4f6", cursor: "not-allowed", color: "#6b7280" } : {}}
   />
+  {errors.username && <div style={{ color: "#dc2626", fontSize: 13, marginTop: 4 }}>{errors.username}</div>}
 </div>
 
         {!initial && (
           <div className="form-full">
             <label className="form-label">Authentication Type</label>
-            <select className="form-select" value={authType} onChange={(e) => setAuthType(e.target.value)}>
+            <select className="form-select" value={authType} onChange={(e) => { setAuthType(e.target.value); clearError("authType"); }}>
               <option value="local">Local</option>
               <option value="ldap">LDAP</option>
             </select>
@@ -401,6 +424,7 @@ function UserFormModal({ title, departments, initial, submitting, error, onClose
                 ? "User authenticates via LDAP/AD. No password stored."
                 : "User authenticates with a locally stored password."}
             </div>
+            {errors.authType && <div style={{ color: "#dc2626", fontSize: 13, marginTop: 4 }}>{errors.authType}</div>}
           </div>
         )}
 
@@ -433,40 +457,45 @@ function UserFormModal({ title, departments, initial, submitting, error, onClose
               className="form-input"
               type="email"
               value={email}
-              onChange={(e) => { setEmail(e.target.value); if (emailError) setEmailError(""); }}
+              onChange={(e) => { setEmail(e.target.value); clearError("email"); }}
               placeholder="user@example.com"
               required
             />
             <div style={{ fontSize: 12, color: "#6b7280", marginTop: 4 }}>Used once to send credentials. Not stored.</div>
-            {emailError && <div style={{ color: "#dc2626", fontSize: 13, marginTop: 4 }}>{emailError}</div>}
+            {errors.email && <div style={{ color: "#dc2626", fontSize: 13, marginTop: 4 }}>{errors.email}</div>}
           </div>
         )}
 
         <div className="form-full">
           <label className="form-label">Department</label>
-          <select className="form-select" value={department} onChange={(e) => setDepartment(e.target.value)}>
+          <select className="form-select" value={department} onChange={(e) => { setDepartment(e.target.value); clearError("department"); }}>
             <option value="">Select</option>
             {departments.map((d) => (
               <option key={d.department_id} value={d.department_id}>{d.department_name}</option>
             ))}
           </select>
+          {errors.department && <div style={{ color: "#dc2626", fontSize: 13, marginTop: 4 }}>{errors.department}</div>}
         </div>
 
         <div className="form-full">
           <label className="form-label">Role</label>
-          <select className="form-select" value={role} onChange={(e) => setRole(e.target.value)}>
+          <select className="form-select" value={role} onChange={(e) => { setRole(e.target.value); clearError("role"); }}>
+            <option value="">Select</option>
             <option value="admin">Admin</option>
             <option value="outside">Outside</option>
             <option value="secure">Secure</option>
           </select>
+          {errors.role && <div style={{ color: "#dc2626", fontSize: 13, marginTop: 4 }}>{errors.role}</div>}
         </div>
 
         <div className="form-full">
           <label className="form-label">Status</label>
-          <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)}>
+          <select className="form-select" value={status} onChange={(e) => { setStatus(e.target.value); clearError("status"); }}>
+            <option value="">Select</option>
             <option>Active</option>
             <option>Inactive</option>
           </select>
+          {errors.status && <div style={{ color: "#dc2626", fontSize: 13, marginTop: 4 }}>{errors.status}</div>}
         </div>
       </form>
     </Modal>

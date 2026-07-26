@@ -15,6 +15,7 @@ export default function Login({ lockedPortal }) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [usernameError, setUsernameError] = useState("");
   const [forgotMode, setForgotMode] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotOtp, setForgotOtp] = useState("");
@@ -40,6 +41,18 @@ export default function Login({ lockedPortal }) {
 
   async function handleSignIn(e) {
     e.preventDefault();
+
+    const trimmedUsername = username.trim();
+    if (!trimmedUsername) {
+      setUsernameError("Username is required.");
+      return;
+    }
+    if (/\s/.test(trimmedUsername)) {
+      setUsernameError("Username cannot contain spaces.");
+      return;
+    }
+    setUsernameError("");
+
     setLoading(true);
     setError("");
 
@@ -47,7 +60,7 @@ export default function Login({ lockedPortal }) {
       const res = await fetch("/api/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, loginType: effectiveLoginType }),
+        body: JSON.stringify({ username: trimmedUsername, password, loginType: effectiveLoginType }),
       });
 
       const data = await res.json();
@@ -204,9 +217,14 @@ export default function Login({ lockedPortal }) {
               <input
                 className="form-input"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => { setUsername(e.target.value); if (usernameError) setUsernameError(""); }}
                 required
               />
+              {usernameError && (
+                <div style={{ color: "red", marginTop: "4px", fontSize: "13px" }}>
+                  {usernameError}
+                </div>
+              )}
             </div>
             <div className="form-group">
               <label className="form-label">Password</label>
