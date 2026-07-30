@@ -1,0 +1,91 @@
+/* ── LOGIN SCREEN ─────────────────────────────── */
+#login-screen {
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #0f3460 0%, #1a73e8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.login-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.login-logo { text-align: center; margin-bottom: 28px; }
+.login-logo-icon {
+  width: 56px;
+  height: 56px;
+  background: #0f3460;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: #fff;
+  margin-bottom: 12px;
+}
+.login-logo h2 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+.login-logo p { font-size: 12px; color: #6b7280; }
+
+.login-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+.login-tab {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all .15s;
+}
+.login-tab:hover { background: #f9fafb; }
+.login-tab-active { background: #eff6ff; border-color: #1a73e8; color: #1a73e8; }
+
+.forgot { text-align: center; margin-top: 14px; font-size: 12px; color: #1a73e8; cursor: pointer; }
+.forgot:hover { text-decoration: underline; }
+
+/* ── PORTAL-SPECIFIC LOGIN BRANDING ──────────────
+   Subtle, consistent-with-the-existing-design accent per portal: a top
+   border on the card plus a matching tint on the logo icon and portal
+   label. Layout, spacing, and typography stay identical across all three —
+   only color changes, so the pages read as one design system. */
+.login-portal-label {
+  margin-top: 10px;
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.portal-accent-admin { border-top: 4px solid #7c3aed; }
+.portal-accent-admin .login-logo-icon { background: #7c3aed; }
+.portal-accent-admin .login-portal-label { background: #f5f3ff; color: #7c3aed; }
+
+.portal-accent-internal { border-top: 4px solid #0f3460; }
+.portal-accent-internal .login-logo-icon { background: #0f3460; }
+.portal-accent-internal .login-portal-label { background: #eff6ff; color: #0f3460; }
+
+.portal-accent-external { border-top: 4px solid #0d9488; }
+.portal-accent-external .login-logo-icon { background: #0d9488; }
+.portal-accent-external .login-portal-label { background: #f0fdfa; color: #0d9488; }
